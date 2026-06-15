@@ -89,14 +89,20 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 <div id="tabTecnico" class="tab-content">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 <div class="space-y-4">
-<h2 class="text-lg font-bold text-campre-blue border-b-2 border-campre-green pb-2">Dimensiones</h2>
+<div class="flex items-center justify-between">
+    <h2 class="text-lg font-bold text-campre-blue border-b-2 border-campre-green pb-2">Dimensiones</h2>
+    <select id="unidadMedida" onchange="actualizarUnidadesUI(); calcular();" class="text-sm border rounded-lg p-2 bg-white focus:ring-2 focus:ring-campre-green outline-none">
+        <option value="cm">Centímetros (cm)</option>
+        <option value="m">Metros (m)</option>
+    </select>
+</div>
 <div class="grid grid-cols-2 gap-3">
 <div>
-<label class="block text-sm font-semibold mb-1">Largo (cm)</label>
+<label id="labelLargo" class="block text-sm font-semibold mb-1">Largo (cm)</label>
 <input type="number" id="largo" value="61" class="w-full p-3 border rounded-xl border-slate-300 focus:ring-2 focus:ring-campre-green outline-none" oninput="calcular()">
 </div>
 <div>
-<label class="block text-sm font-semibold mb-1">Ancho (cm)</label>
+<label id="labelAncho" class="block text-sm font-semibold mb-1">Ancho (cm)</label>
 <input type="number" id="ancho" value="80" class="w-full p-3 border rounded-xl border-slate-300 focus:ring-2 focus:ring-campre-green outline-none" oninput="calcular()">
 </div>
 </div>
@@ -343,7 +349,7 @@ ENTREGAR PRESUPUESTO
 <div class="space-y-5 text-slate-700 text-sm">
 <section>
 <h3 class="font-bold text-campre-blue text-base">1. Cálculo Técnico</h3>
-<p>Define las dimensiones del proyecto. Ingresa largo, ancho, espesor y número de capas para obtener el cálculo exacto de materiales en mililitros y miligramos, incluyendo el 5% de margen de desperdicio técnico.</p>
+<p>Selecciona la unidad de medida (cm o m). Ingresa las dimensiones y el sistema calculará automáticamente los materiales en miligramos/mililitros (para cm) o kilogramos/litros (para m), incluyendo siempre el 5% de margen de desperdicio técnico.</p>
 </section>
 <section>
 <h3 class="font-bold text-campre-blue text-base">2. Presupuesto</h3>
@@ -601,6 +607,12 @@ function toggleCollapsible(id) {
     arrow.textContent = el.classList.contains('open') ? '▲' : '▼';
 }
 
+function actualizarUnidadesUI() {
+    const unidad = document.getElementById('unidadMedida').value;
+    document.getElementById('labelLargo').textContent = unidad === 'cm' ? 'Largo (cm)' : 'Largo (m)';
+    document.getElementById('labelAncho').textContent = unidad === 'cm' ? 'Ancho (cm)' : 'Ancho (m)';
+}
+
 function renderizarCatalogo() {
     const grid = document.getElementById('catalogoCAMPRE');
     grid.innerHTML = '';
@@ -684,34 +696,53 @@ function addExampleServices() {
 }
 
 function calcular() {
-    // 1. Cálculo Técnico
+    const unidad = document.getElementById('unidadMedida').value;
     const largo = parseFloat(document.getElementById('largo').value) || 0;
     const ancho = parseFloat(document.getElementById('ancho').value) || 0;
-    const espesor = parseFloat(document.getElementById('espesor').value) || 1;
+    const espesor = parseFloat(document.getElementById('espesor').value) || 1; // siempre en mm
     const capas = parseInt(document.getElementById('capas').value) || 1;
     
-    const areaM2 = (largo * ancho) / 10000;
+    let areaM2 = 0;
+    if (unidad === 'cm') {
+        areaM2 = (largo * ancho) / 10000;
+    } else {
+        areaM2 = largo * ancho;
+    }
+    
     const volumenL = areaM2 * (espesor / 1000);
-    // CONVERSIÓN A MILILITROS (1 L = 1000 mL)
-    const volumenML = volumenL * 1000;
     
-    // MANTENIENDO EL 5% DE ESTIMACIÓN (desperdicio técnico)
-    const totalBase = volumenL * 1.05 * capas;
+    // EL 5% DE ESTIMACIÓN SE MANTIENE ESTRICTAMENTE EN AMBOS MODOS
+    const totalBaseKg = volumenL * 1.05 * capas;
     
-    // CONVERSIÓN A MILIGRAMOS (1 kg = 1,000,000 mg)
-    const totalBaseMG = totalBase * 1000000;
-    const resina = totalBase * (2/3);
-    const catalizador = totalBase * (1/3);
-    const resinaMG = resina * 1000000;
-    const catalizadorMG = catalizador * 1000000;
+    let valVolText, valResText, valCatText, valTotText;
+
+    if (unidad === 'cm') {
+        const volumenML = volumenL * 1000;
+        const resinaMg = (totalBaseKg * (2/3)) * 1000000;
+        const catalizadorMg = (totalBaseKg * (1/3)) * 1000000;
+        const totalMg = totalBaseKg * 1000000;
+
+        valVolText = volumenML.toFixed(2) + ' mL';
+        valResText = resinaMg.toFixed(0) + ' mg';
+        valCatText = catalizadorMg.toFixed(0) + ' mg';
+        valTotText = totalMg.toFixed(0) + ' mg';
+    } else {
+        const resinaKg = totalBaseKg * (2/3);
+        const catalizadorKg = totalBaseKg * (1/3);
+
+        valVolText = volumenL.toFixed(2) + ' L';
+        valResText = resinaKg.toFixed(2) + ' kg';
+        valCatText = catalizadorKg.toFixed(2) + ' kg';
+        valTotText = totalBaseKg.toFixed(2) + ' kg';
+    }
 
     document.getElementById('valArea').textContent = areaM2.toFixed(2) + ' m²';
-    document.getElementById('valVolumen').textContent = volumenML.toFixed(2) + ' mL';
+    document.getElementById('valVolumen').textContent = valVolText;
     document.getElementById('labelComponente1').textContent = 'Resina Epoxi (A):';
     document.getElementById('labelComponente2').textContent = 'Catalizador (B):';
-    document.getElementById('valResina').textContent = resinaMG.toFixed(0) + ' mg';
-    document.getElementById('valCatalizador').textContent = catalizadorMG.toFixed(0) + ' mg';
-    document.getElementById('displayTotal').textContent = totalBaseMG.toFixed(0) + ' mg';
+    document.getElementById('valResina').textContent = valResText;
+    document.getElementById('valCatalizador').textContent = valCatText;
+    document.getElementById('displayTotal').textContent = valTotText;
 
     // 2. Cálculo de Presupuesto (Solo pestaña presupuesto)
     if (currentTab === 'tabPresupuesto') {
@@ -720,8 +751,7 @@ function calcular() {
         const cC = parseFloat(document.getElementById('costoCatalizador').value) || 0;
         const cP = parseFloat(document.getElementById('costoPigmento').value) || 0;
         
-        // Los costos se mantienen en kg internamente para el cálculo financiero
-        subtotal += (resina * cR) + (catalizador * cC);
+        subtotal += (totalBaseKg * (2/3) * cR) + (totalBaseKg * (1/3) * cC);
 
         ['materials', 'services'].forEach(type => {
             document.getElementById(type + 'List').querySelectorAll('div').forEach(row => {
@@ -1031,6 +1061,7 @@ function downloadCourseWord() {
 }
 
 // Inicializar
+actualizarUnidadesUI();
 renderizarCatalogo();
 calcular();
 </script>
