@@ -1,790 +1,853 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMPRE Pro | Licencia Exclusiva</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --campre-blue: #1E4B96;
-            --campre-blue-dark: #153873;
-            --campre-green: #8CB64E;
-            --campre-green-dark: #6a8c3d;
-        }
-        * { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
-        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #334155; }
-        .bg-blob { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.4; z-index: 0; animation: float 20s infinite ease-in-out; }
-        .blob-1 { width: 500px; height: 500px; background: var(--campre-blue); top: -150px; left: -150px; }
-        .blob-2 { width: 600px; height: 600px; background: var(--campre-green); bottom: -200px; right: -200px; animation-delay: -10s; }
-        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(50px, -50px) scale(1.1); } }
-        
-        .login-screen { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
-        .login-screen.hidden { opacity: 0; pointer-events: none; }
-        .login-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; max-width: 480px; width: 90%; box-shadow: 0 25px 80px rgba(0,0,0,0.5); animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        .lock-icon { width: 80px; height: 80px; background: linear-gradient(135deg, var(--campre-blue), var(--campre-green)); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 10px 40px rgba(140, 182, 78, 0.3); }
-        .code-input { background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.1); color: white; font-family: 'Space Grotesk', monospace; letter-spacing: 0.1em; text-align: center; font-size: 18px; font-weight: 600; padding: 16px; border-radius: 12px; width: 100%; transition: all 0.3s ease; }
-        .code-input:focus { outline: none; border-color: var(--campre-green); background: rgba(255,255,255,0.12); box-shadow: 0 0 0 4px rgba(140, 182, 78, 0.2); }
-        .code-input.error { border-color: #ef4444; animation: shake 0.5s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .btn-access { background: linear-gradient(135deg, var(--campre-green), var(--campre-green-dark)); color: white; font-weight: 700; padding: 16px; border-radius: 12px; width: 100%; margin-top: 16px; transition: all 0.3s ease; box-shadow: 0 6px 0 var(--campre-green-dark), 0 8px 20px rgba(0,0,0,0.3); }
-        .btn-access:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--campre-green-dark), 0 12px 30px rgba(0,0,0,0.4); }
-        .btn-access:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--campre-green-dark); }
-        
-        .glass { background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.5); }
-        .header-gradient { background: linear-gradient(135deg, #1E4B96 0%, #153873 50%, #0d2852 100%); position: relative; overflow: hidden; }
-        .header-gradient::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 50%, rgba(140, 182, 78, 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(140, 182, 78, 0.15) 0%, transparent 50%); animation: pulse-gradient 8s infinite; }
-        @keyframes pulse-gradient { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-        .input-pro { transition: all 0.25s ease; border: 2px solid #e2e8f0; background: white; }
-        .input-pro:focus { border-color: var(--campre-green); box-shadow: 0 0 0 4px rgba(140, 182, 78, 0.15); }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(30, 75, 150, 0.1); }
-        .bar-fill { transition: width 0.8s ease; background: linear-gradient(90deg, var(--campre-blue), var(--campre-green)); }
-        .modal { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-content { transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .modal.active .modal-content { transform: scale(1) translateY(0); }
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .result-num { font-variant-numeric: tabular-nums; transition: all 0.3s ease; }
-        .result-num.updating { color: var(--campre-green); transform: scale(1.05); }
-        .typing span { display: inline-block; width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; margin: 0 2px; animation: typing 1.4s infinite ease-in-out; }
-        .typing span:nth-child(2) { animation-delay: 0.2s; }
-        .typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-8px); opacity: 1; } }
-        .fab { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden; }
-        .fab:hover { transform: scale(1.1) rotate(5deg); }
-        .toast { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 12px; color: white; font-weight: 600; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 99999; animation: slideIn 0.3s ease; }
-        .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
-        .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .toast.info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .toast.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .preset-btn { transition: all 0.2s ease; border: 2px solid #e2e8f0; }
-        .preset-btn:hover { border-color: var(--campre-green); background: rgba(140, 182, 78, 0.05); }
-        .user-badge { background: rgba(140, 182, 78, 0.15); border: 1px solid rgba(140, 182, 78, 0.3); color: var(--campre-green); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        
-        .admin-panel { position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .admin-panel.active { display: flex; }
-        .admin-card { background: white; border-radius: 24px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.5); }
-        .code-display { font-family: 'Space Grotesk', monospace; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: var(--campre-blue); font-size: 13px; letter-spacing: 0.05em; }
-        .status-active { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        .status-claimed { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        .status-blocked { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        
-        @media print { body * { visibility: hidden; } #printArea, #printArea * { visibility: visible; } #printArea { position: absolute; left: 0; top: 0; width: 100%; } .no-print { display: none !important; } }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: var(--campre-blue); border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora CAMPRE | Profesional</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #54667A; background: #f1f5f9; }
+.bg-campre-blue { background-color: #1E4B96; }
+.text-campre-blue { color: #1E4B96; }
+.bg-campre-green { background-color: #8CB64E; }
+.border-campre-green { border-color: #8CB64E; }
+.bevel-btn { border-bottom: 6px solid #6a8c3d; transition: all 0.1s ease; }
+.bevel-btn:active { border-bottom: 0px; transform: translateY(6px); }
+.modal { display: none; }
+.modal.active { display: flex; }
+.tab-btn { transition: all 0.2s ease; }
+.tab-btn.active { background: #1E4B96; color: white; }
+.collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+.collapsible-content.open { max-height: 2000px; }
+.param-card { transition: all 0.2s ease; }
+.param-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.priority-badge { font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
+.priority-high { background: #fee2e2; color: #991b1b; }
+.priority-med { background: #fef3c7; color: #92400e; }
+.priority-low { background: #dbeafe; color: #1e40af; }
+</style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-<!-- ============ LOGIN SCREEN ============ -->
-<div id="loginScreen" class="login-screen">
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-    
-    <div class="login-card relative z-10">
-        <div class="lock-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-        </div>
-        
-        <h1 class="text-3xl font-bold text-white text-center mb-2">CAMPRE <span style="color: var(--campre-green)">PRO</span></h1>
-        <p class="text-center text-slate-400 text-sm mb-8">Licencia vitalicia vinculada a tu dispositivo</p>
-        
-        <div id="loginForm">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Código de activación único</label>
-            <input type="text" id="accessCode" class="code-input" placeholder="CAMPRE-XXXX-XXXX-XXXX" maxlength="23" oninput="formatCode(this)">
-            
-            <div id="loginError" class="hidden mt-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm text-center"></div>
-            
-            <button onclick="validateAccess()" class="btn-access">🔓 Activar Acceso Vitalicio</button>
-            
-            <div class="mt-6 pt-6 border-t border-white/10 text-center">
-                <p class="text-xs text-slate-500">¿No tienes código de activación?</p>
-                <p class="text-xs text-slate-400 mt-1">Completa el curso o contacta a CAMPRE</p>
-                <p class="text-xs text-slate-500 mt-3">📧 contacto@campre.com</p>
-            </div>
-       1</div>
-        
-        <div id="blockedMessage" class="hidden text-center py-8">
-            <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="15" y1="9" x2="9" y2="15"/>
-                    <line x1="9" y1="9" x2="15" y2="15"/>
-                </svg>
-            </div>
-            <h3 class="text-xl font-bold text-white mb-2">Código No Válido o Usado</h3>
-            <p class="text-slate-400 text-sm mb-4">Este código ya fue activado en otro dispositivo o no existe.</p>
-            <p class="text-slate-500 text-xs">Cada código es de un solo uso y vitalicio para quien lo activa primero.</p>
-        </div>
-    </div>
+<!-- BOTONES FLOTANTES -->
+<button onclick="showModal('courseModal')" class="fixed top-6 left-6 bg-slate-700 text-white py-3 px-6 rounded-full shadow-xl hover:scale-105 transition-transform font-bold border-2 border-white z-40">
+📖 CURSO COMPLETO
+</button>
+<button onclick="showModal('helpModal')" class="fixed bottom-6 left-6 bg-slate-500 text-white p-4 rounded-full shadow-xl hover:scale-105 transition-transform font-bold border-2 border-white z-40">
+?
+</button>
+
+<div class="max-w-5xl mx-auto shadow-2xl rounded-3xl overflow-hidden border border-slate-200 bg-white mt-20">
+<header class="bg-campre-blue p-8 text-center text-white">
+<h1 class="text-3xl font-bold tracking-tight">Calculadora Profesional CAMPRE</h1>
+<p class="text-white/80 font-medium mt-2">C.A. Medina Plásticos Reforzados</p>
+</header>
+
+<!-- TABS PRINCIPALES -->
+<div class="flex border-b border-slate-200 bg-slate-50">
+<button onclick="switchTab('tabTecnico')" id="btnTabTecnico" class="tab-btn active flex-1 py-4 font-bold text-sm">🔬 CÁLCULO TÉCNICO</button>
+<button onclick="switchTab('tabPresupuesto')" id="btnTabPresupuesto" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">💼 PRESUPUESTO</button>
+<button onclick="switchTab('tabEntrega')" id="btnTabEntrega" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">📤 ENTREGA</button>
 </div>
 
-<!-- ============ ADMIN PANEL ============ -->
-<div id="adminPanel" class="admin-panel">
-    <div class="admin-card p-8">
-        <div class="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
-            <div>
-                <h2 class="text-2xl font-bold text-[#1E4B96]">🔐 Panel Administrativo CAMPRE</h2>
-                <p class="text-sm text-slate-500">Gestión de licencias vitalicias</p>
-            </div>
-            <button onclick="closeAdmin()" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-xl">✕</button>
-        </div>
-        
-        <div class="bg-gradient-to-br from-[#1E4B96]/5 to-[#8CB64E]/5 p-6 rounded-2xl border border-slate-200 mb-6">
-            <h3 class="font-bold text-lg text-[#1E4B96] mb-4">🎫 Generar Nueva Licencia</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Nombre del Cliente</label>
-                    <input type="text" id="clientName" placeholder="Ej: José Pérez" class="input-pro w-full p-3 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Email / Teléfono</label>
-                    <input type="text" id="clientEmail" placeholder="contacto@ejemplo.com" class="input-pro w-full p-3 rounded-xl text-sm">
-                </div>
-            </div>
-            <button onclick="generateNewCode()" class="bg-gradient-to-br from-[#8CB64E] to-[#6a8c3d] text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-                ✨ Generar Código Único
-            </button>
-            
-            <div id="generatedCodeBox" class="hidden mt-4 p-4 bg-white rounded-xl border-2 border-[#8CB64E]">
-                <p class="text-xs font-bold text-slate-500 uppercase mb-2">✅ Licencia generada (Un solo uso):</p>
-                <div class="flex items-center justify-between gap-3 flex-wrap">
-                    <div>
-                        <p id="generatedClientName" class="font-bold text-[#1E4B96]"></p>
-                        <p id="generatedCode" class="code-display mt-2 text-lg"></p>
-                    </div>
-                    <button onclick="copyGeneratedCode()" class="bg-[#1E4B96] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#153873]">📋 Copiar</button>
-                </div>
-            </div>
-        </div>
-        
-        <div>
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-[#1E4B96]">📋 Licencias Emitidas</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="searchCodes" onkeyup="filterCodes()" placeholder="🔍 Buscar..." class="input-pro px-3 py-2 rounded-lg text-sm">
-                    <button onclick="exportCodesList()" class="bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg text-sm font-bold">📥 Exportar CSV</button>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="p-3 text-left">Cliente</th>
-                            <th class="p-3 text-left">Código</th>
-                            <th class="p-3 text-left">Estado</th>
-                            <th class="p-3 text-left">Dispositivo Vinculado</th>
-                            <th class="p-3 text-left">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="codesTableBody"></tbody>
-                </table>
-            </div>
-            <div id="noCodesMsg" class="hidden text-center py-8 text-slate-400 text-sm">No hay licencias emitidas todavía</div>
-        </div>
-    </div>
+<div class="p-6 md:p-8">
+
+<!-- ============ TAB 1: CÁLCULO TÉCNICO ============ -->
+<div id="tabTecnico" class="tab-content">
+
+<!-- PARÁMETROS DE ALTA PRIORIDAD -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-high">ALTA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Parámetros del Proyecto</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Tipo de Resina</label>
+<select id="tipoResina" onchange="calcular()" class="w-full p-2 border rounded-lg text-sm">
+<option value="epoxi">Epoxi (2:1)</option>
+<option value="poliester">Poliéster (1-2%)</option>
+</select>
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Superficie</label>
+<select id="tipoSuperficie" onchange="calcular()" class="w-full p-2 border rounded-lg text-sm">
+<option value="concreto">Concreto</option>
+<option value="madera">Madera</option>
+<option value="metal">Metal</option>
+<option value="ceramica">Cerámica</option>
+</select>
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Proyecto</label>
+<select id="tipoProyecto" onchange="aplicarPresetProyecto()" class="w-full p-2 border rounded-lg text-sm">
+<option value="personalizado">Personalizado</option>
+<option value="piso">Piso (1-2mm)</option>
+<option value="mesa">Mesa (3-5mm)</option>
+<option value="encimera">Encimera (3mm)</option>
+<option value="arte">Arte/Manualidades</option>
+<option value="relleno">Relleno/Grietas</option>
+</select>
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Acabado</label>
+<select id="tipoAcabado" class="w-full p-2 border rounded-lg text-sm">
+<option value="brillante">Alto Brillo</option>
+<option value="semibrillante">Semibrillante</option>
+<option value="mate">Mate</option>
+<option value="texturizado">Texturizado</option>
+</select>
+</div>
+</div>
 </div>
 
-<!-- ============ MAIN APP ============ -->
-<div id="mainApp" class="hidden">
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
+<!-- DIMENSIONES -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div class="space-y-4">
+<h2 class="text-lg font-bold text-campre-blue border-b-2 border-campre-green pb-2">📏 Dimensiones</h2>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm font-semibold mb-1">Largo (cm)</label>
+<input type="number" id="largo" value="61" class="w-full p-3 border rounded-xl border-slate-300 focus:ring-2 focus:ring-campre-green outline-none" oninput="calcular()">
+</div>
+<div>
+<label class="block text-sm font-semibold mb-1">Ancho (cm)</label>
+<input type="number" id="ancho" value="80" class="w-full p-3 border rounded-xl border-slate-300 focus:ring-2 focus:ring-campre-green outline-none" oninput="calcular()">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm font-semibold mb-1">Espesor (mm)</label>
+<input type="number" id="espesor" value="1" step="0.5" class="w-full p-3 border rounded-xl border-slate-300 focus:ring-2 focus:ring-campre-green outline-none" oninput="calcular()">
+</div>
+<div>
+<label class="block text-sm font-semibold mb-1">Nº de Capas</label>
+<input type="number" id="capas" value="1" min="1" max="5" class="w-full p-3 border rounded-xl border-slate-300 focus:ring-2 focus:ring-campre-green outline-none" oninput="calcular()">
+</div>
+</div>
+</div>
 
-    <div class="max-w-6xl mx-auto relative z-10 p-4 md:p-8">
-        <header class="header-gradient rounded-t-3xl p-8 md:p-12 text-white shadow-2xl">
-            <div class="flex items-center justify-between flex-wrap gap-4 relative z-10">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center border border-white/20">
-                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                            <path d="M20 4 L34 12 L34 28 L20 36 L6 28 L6 12 Z" stroke="#8CB64E" stroke-width="2" fill="none"/>
-                            <path d="M20 10 L28 15 L28 25 L20 30 L12 25 L12 15 Z" fill="#8CB64E" opacity="0.3"/>
-                            <circle cx="20" cy="20" r="4" fill="#8CB64E"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight">CAMPRE <span class="text-[#8CB64E]">PRO</span></h1>
-                        <input type="text" id="projectName" value="Nuevo Proyecto" class="bg-transparent text-white/90 text-sm font-medium border-b border-dashed border-white/30 focus:border-[#8CB64E] outline-none px-1" placeholder="Nombre del proyecto">
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="user-badge">👤 <span id="currentUserDisplay">Usuario</span></span>
-                    <button onclick="logout()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all" title="Cerrar sesión en este dispositivo">🚪 Salir</button>
-                </div>
-            </div>
-        </header>
+<!-- RESULTADOS -->
+<div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
+<h2 class="text-lg font-bold text-campre-blue mb-4">📊 Desglose de Materiales</h2>
+<div class="space-y-2">
+<div class="flex justify-between items-center py-2 border-b border-slate-200">
+<span class="font-medium text-sm">Área Total:</span>
+<span id="valArea" class="font-bold text-campre-blue">0.00 m²</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-slate-200">
+<span class="font-medium text-sm">Volumen:</span>
+<span id="valVolumen" class="font-bold text-campre-blue">0.00 L</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-slate-200">
+<span class="font-medium text-sm" id="labelComponente1">Resina (A):</span>
+<span id="valResina" class="font-bold text-campre-blue">0.00 kg</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-slate-200">
+<span class="font-medium text-sm" id="labelComponente2">Catalizador (B):</span>
+<span id="valCatalizador" class="font-bold text-campre-blue">0.00 kg</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-slate-200 bg-yellow-50 -mx-2 px-2 rounded">
+<span class="font-medium text-sm">Pigmento (5%):</span>
+<span id="valPigmento" class="font-bold text-campre-blue">0.00 kg</span>
+</div>
+<div class="flex justify-between items-center py-2 bg-campre-green/10 -mx-2 px-2 rounded">
+<span class="font-bold">TOTAL MATERIAL:</span>
+<span id="displayTotal" class="font-bold text-xl text-campre-green">0.00 kg</span>
+</div>
+</div>
+</div>
+</div>
 
-        <main class="glass rounded-b-3xl shadow-2xl p-6 md:p-10">
-            <div class="mb-8">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">⚡ Ejemplos rápidos:</p>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="applyPreset(300, 400, 2)" class="preset-btn bg-white px-4 py-2 rounded-full text-sm font-semibold text-slate-700">🏠 Piso 3x4m</button>
-                    <button onclick="applyPreset(100, 200, 1)" class="preset-btn bg-white px-4 py-2 rounded-full text-sm font-semibold text-slate-700">🪑 Mesa 1x2m</button>
-                    <button onclick="applyPreset(600, 300, 3)" class="preset-btn bg-white px-4 py-2 rounded-full text-sm font-semibold text-slate-700">🚗 Garaje 6x3m</button>
-                </div>
-            </div>
+<!-- PARÁMETROS TÉCNICOS AVANZADOS (COLAPSABLE) -->
+<div class="mb-4">
+<button onclick="toggleCollapsible('colTecnicos')" class="w-full flex justify-between items-center bg-slate-100 p-3 rounded-xl hover:bg-slate-200 transition">
+<span class="font-bold text-campre-blue text-sm">⚙️ Parámetros Técnicos Avanzados</span>
+<span id="arrowColTecnicos" class="text-slate-400">▼</span>
+</button>
+<div id="colTecnicos" class="collapsible-content">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Desperdicio (%)</label>
+<select id="desperdicio" onchange="calcular()" class="w-full p-2 border rounded-lg text-sm">
+<option value="1.05">5% (Estándar)</option>
+<option value="1.10">10% (Complejo)</option>
+<option value="1.15">15% (Muy complejo)</option>
+<option value="1.20">20% (Principiante)</option>
+</select>
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Temperatura (°C)</label>
+<input type="number" id="temperatura" value="25" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Humedad (%)</label>
+<input type="number" id="humedad" value="50" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Color Pigmento</label>
+<select id="colorPigmento" class="w-full p-2 border rounded-lg text-sm">
+<option value="none">Sin pigmento</option>
+<option value="blanco">Blanco</option>
+<option value="negro">Negro</option>
+<option value="rojo">Rojo</option>
+<option value="azul">Azul</option>
+<option value="verde">Verde</option>
+<option value="dorado">Dorado</option>
+<option value="personalizado">Personalizado</option>
+</select>
+</div>
+</div>
+<div id="alertaAmbiental" class="mt-3 hidden p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800"></div>
+</div>
+</div>
+</div>
 
-            <div class="flex justify-center mb-8">
-                <div class="bg-slate-100 p-1.5 rounded-full flex gap-1">
-                    <button id="modeSimple" onclick="setMode('simple')" class="px-6 py-2.5 rounded-full font-semibold text-sm transition-all bg-white shadow text-[#1E4B96]">📐 Solo Materiales</button>
-                    <button id="modeIntegral" onclick="setMode('integral')" class="px-6 py-2.5 rounded-full font-semibold text-sm transition-all text-slate-500">💼 Presupuesto Completo</button>
-                </div>
-            </div>
+<!-- ============ TAB 2: PRESUPUESTO ============ -->
+<div id="tabPresupuesto" class="tab-content hidden">
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="space-y-6">
-                    <div class="flex items-center gap-2 mb-2"><div class="w-1 h-6 bg-[#8CB64E] rounded"></div><h2 class="text-xl font-bold text-[#1E4B96]">Dimensiones</h2></div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="card-hover bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Largo</label>
-                            <input type="number" id="largo" value="61" class="input-pro w-full p-3 rounded-xl text-lg font-bold text-[#1E4B96]" oninput="calcular()">
-                            <p class="text-xs text-slate-400 mt-1">cm</p>
-                        </div>
-                        <div class="card-hover bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Ancho</label>
-                            <input type="number" id="ancho" value="80" class="input-pro w-full p-3 rounded-xl text-lg font-bold text-[#1E4B96]" oninput="calcular()">
-                            <p class="text-xs text-slate-400 mt-1">cm</p>
-                        </div>
-                        <div class="card-hover bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Espesor</label>
-                            <input type="number" id="espesor" value="1" step="0.5" class="input-pro w-full p-3 rounded-xl text-lg font-bold text-[#1E4B96]" oninput="calcular()">
-                            <p class="text-xs text-slate-400 mt-1">mm</p>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-slate-50 to-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Resumen</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><p class="text-xs text-slate-400">Área total</p><p id="areaDisplay" class="text-2xl font-bold text-[#1E4B96]">0.49 m²</p></div>
-                            <div><p class="text-xs text-slate-400">Volumen</p><p id="volumenDisplay" class="text-2xl font-bold text-[#8CB64E]">0.49 L</p></div>
-                        </div>
-                    </div>
-                </div>
+<!-- COSTOS BASE -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-high">ALTA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Costos Base de Materiales</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div class="param-card bg-white p-4 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Costo Resina A ($/kg)</label>
+<input type="number" id="costoResina" value="20" class="w-full p-2 border rounded-lg" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-4 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Costo Catalizador B ($/kg)</label>
+<input type="number" id="costoCatalizador" value="40" class="w-full p-2 border rounded-lg" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-4 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Costo Pigmento ($/kg)</label>
+<input type="number" id="costoPigmento" value="30" class="w-full p-2 border rounded-lg" oninput="calcular()">
+</div>
+</div>
+</div>
 
-                <div class="space-y-4">
-                    <div class="flex items-center gap-2 mb-2"><div class="w-1 h-6 bg-[#1E4B96] rounded"></div><h2 class="text-xl font-bold text-[#1E4B96]">Materiales Necesarios</h2></div>
-                    <div class="bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl border-2 border-[#8CB64E]/20 shadow-lg">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Requerido</p>
-                        <p class="text-xs text-slate-400 mb-3">Incluye 5% de margen de seguridad</p>
-                        <div class="flex items-baseline gap-2">
-                            <span id="displayTotal" class="result-num text-5xl font-black text-[#1E4B96]">0.00</span>
-                            <span class="text-xl font-bold text-slate-400">kg</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="card-hover bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            <div class="flex items-center gap-2 mb-2"><div class="w-3 h-3 rounded-full bg-[#1E4B96]"></div><p class="text-xs font-bold text-slate-500 uppercase">Resina A</p></div>
-                            <p class="text-xs text-slate-400 mb-1">66.67%</p>
-                            <div class="flex items-baseline gap-1"><span id="valResina" class="result-num text-2xl font-bold text-[#1E4B96]">0.00</span><span class="text-sm text-slate-400">kg</span></div>
-                            <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="bar-fill h-full" style="width: 66.67%"></div></div>
-                        </div>
-                        <div class="card-hover bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            <div class="flex items-center gap-2 mb-2"><div class="w-3 h-3 rounded-full bg-[#8CB64E]"></div><p class="text-xs font-bold text-slate-500 uppercase">Catalizador B</p></div>
-                            <p class="text-xs text-slate-400 mb-1">33.33%</p>
-                            <div class="flex items-baseline gap-1"><span id="valCatalizador" class="result-num text-2xl font-bold text-[#8CB64E]">0.00</span><span class="text-sm text-slate-400">kg</span></div>
-                            <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="bar-fill h-full" style="width: 33.33%"></div></div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <button onclick="guardarProyecto()" class="bg-white hover:bg-slate-50 text-[#1E4B96] border-2 border-[#1E4B96]/20 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">💾 Guardar</button>
-                        <button onclick="exportarPDF()" class="bg-white hover:bg-slate-50 text-[#8CB64E] border-2 border-[#8CB64E]/20 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">📄 Exportar PDF</button>
-                    </div>
-                </div>
-            </div>
+<!-- MATERIALES ADICIONALES -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-med">MEDIA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Materiales Adicionales</h2>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<div class="flex justify-between items-center mb-3">
+<span class="text-sm font-semibold">Insumos complementarios</span>
+<div class="flex gap-2">
+<button onclick="addExampleMaterials()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded text-xs font-bold">+ Ejemplos</button>
+<button onclick="addRow('materials')" class="bg-campre-green text-white px-3 py-1 rounded text-xs font-bold">+ Agregar</button>
+</div>
+</div>
+<div id="materialsList" class="space-y-2"></div>
+</div>
+</div>
 
-            <div id="budgetSection" class="hidden mt-10 pt-10 border-t-2 border-dashed border-slate-200 space-y-6">
-                <div class="flex items-center gap-2 mb-4"><div class="w-1 h-6 bg-gradient-to-b from-[#1E4B96] to-[#8CB64E] rounded"></div><h2 class="text-xl font-bold text-[#1E4B96]">Presupuesto Completo</h2></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="card-hover bg-gradient-to-br from-white to-slate-50 p-5 rounded-2xl border border-slate-100 shadow-sm">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Costo Resina A</label>
-                        <div class="flex items-center gap-2"><span class="text-2xl text-slate-400">$</span><input type="number" id="costoResina" value="20" class="input-pro flex-1 p-3 rounded-xl text-lg font-bold text-[#1E4B96]" oninput="calcular()"><span class="text-sm text-slate-400">/kg</span></div>
-                    </div>
-                    <div class="card-hover bg-gradient-to-br from-white to-slate-50 p-5 rounded-2xl border border-slate-100 shadow-sm">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Costo Catalizador B</label>
-                        <div class="flex items-center gap-2"><span class="text-2xl text-slate-400">$</span><input type="number" id="costoCatalizador" value="40" class="input-pro flex-1 p-3 rounded-xl text-lg font-bold text-[#1E4B96]" oninput="calcular()"><span class="text-sm text-slate-400">/kg</span></div>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-[#1E4B96]">📦 Materiales Adicionales</h3>
-                        <div class="flex gap-2">
-                            <button onclick="addExampleMaterials()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold">+ Ejemplos</button>
-                            <button onclick="addRow('materials')" class="bg-[#8CB64E] hover:bg-[#6a8c3d] text-white px-4 py-2 rounded-lg text-xs font-bold">+ Agregar</button>
-                        </div>
-                    </div>
-                    <div id="materialsList" class="space-y-2"></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-[#1E4B96]">👷 Mano de Obra</h3>
-                        <div class="flex gap-2">
-                            <button onclick="addExampleServices()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold">+ Ejemplos</button>
-                            <button onclick="addRow('services')" class="bg-[#8CB64E] hover:bg-[#6a8c3d] text-white px-4 py-2 rounded-lg text-xs font-bold">+ Agregar</button>
-                        </div>
-                    </div>
-                    <div id="servicesList" class="space-y-2"></div>
-                </div>
-                <div class="header-gradient p-8 rounded-3xl text-white text-center shadow-2xl relative overflow-hidden">
-                    <p class="text-xs uppercase tracking-[0.3em] opacity-70 relative z-10">Total del Presupuesto</p>
-                    <div class="flex items-baseline justify-center gap-2 mt-2 relative z-10">
-                        <span class="text-3xl opacity-70">$</span>
-                        <span id="totalPresupuesto" class="text-6xl font-black result-num">0.00</span>
-                        <span class="text-xl opacity-70">USD</span>
-                    </div>
-                </div>
-            </div>
-            <div id="printArea" class="hidden print:block"></div>
-        </main>
-        <footer class="text-center py-6 text-xs text-slate-500">
-            <p>© 2026 CAMPRE · Sistema de Cálculo Profesional · Licencia vinculada a dispositivo</p>
-        </footer>
-    </div>
+<!-- MANO DE OBRA -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-med">MEDIA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Mano de Obra</h2>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<div class="flex justify-between items-center mb-3">
+<span class="text-sm font-semibold">Servicios y trabajos</span>
+<div class="flex gap-2">
+<button onclick="addExampleServices()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded text-xs font-bold">+ Ejemplos</button>
+<button onclick="addRow('services')" class="bg-campre-green text-white px-3 py-1 rounded text-xs font-bold">+ Agregar</button>
+</div>
+</div>
+<div id="servicesList" class="space-y-2"></div>
+</div>
+</div>
 
-    <!-- FLOATING BUTTONS -->
-    <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-40 no-print">
-        <button onclick="showModal('aiModal')" class="fab w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-full shadow-xl flex items-center justify-center text-2xl">🤖</button>
-        <button onclick="showModal('helpModal')" class="fab w-14 h-14 bg-gradient-to-br from-[#1E4B96] to-[#153873] text-white rounded-full shadow-xl flex items-center justify-center text-2xl">?</button>
-        <button onclick="showModal('courseModal')" class="fab w-14 h-14 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-full shadow-xl flex items-center justify-center text-xl">📖</button>
-    </div>
+<!-- PARÁMETROS FINANCIEROS -->
+<div class="mb-6">
+<button onclick="toggleCollapsible('colFinancieros')" class="w-full flex justify-between items-center bg-slate-100 p-3 rounded-xl hover:bg-slate-200 transition">
+<span class="font-bold text-campre-blue text-sm flex items-center gap-2"><span class="priority-badge priority-med">MEDIA</span> Parámetros Financieros</span>
+<span id="arrowColFinancieros" class="text-slate-400">▼</span>
+</button>
+<div id="colFinancieros" class="collapsible-content">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Margen Ganancia (%)</label>
+<input type="number" id="margenGanancia" value="30" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Impuestos (%)</label>
+<input type="number" id="impuestos" value="16" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Descuento (%)</label>
+<input type="number" id="descuento" value="0" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Anticipo (%)</label>
+<input type="number" id="anticipo" value="50" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Transporte ($)</label>
+<input type="number" id="transporte" value="0" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Plazo (días)</label>
+<input type="number" id="plazo" value="7" class="w-full p-2 border rounded-lg text-sm">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Garantía (meses)</label>
+<input type="number" id="garantia" value="12" class="w-full p-2 border rounded-lg text-sm">
+</div>
+<div class="param-card bg-white p-3 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Validez (días)</label>
+<input type="number" id="validez" value="15" class="w-full p-2 border rounded-lg text-sm">
+</div>
+</div>
+</div>
+</div>
 
-    <!-- MODALS (AI, HELP, COURSE) - Mismos que antes, resumidos por espacio -->
-    <div id="aiModal" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="modal-content bg-white max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col">
-            <div class="bg-gradient-to-r from-purple-600 to-purple-800 p-5 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold">Consultor Técnico CAMPRE AI</h2>
-                <button onclick="closeModal('aiModal')" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center">✕</button>
-            </div>
-            <div id="chatHistory" class="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-slate-50 to-white">
-                <div class="flex gap-3"><div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">🤖</div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 max-w-[80%]"><p class="text-sm text-slate-700">¡Hola! Soy tu asistente técnico de CAMPRE. ¿En qué puedo ayudarte?</p></div></div>
-            </div>
-            <div class="p-4 bg-white border-t border-slate-100 flex gap-2">
-                <input type="text" id="aiInput" placeholder="Escribe tu pregunta..." class="flex-1 p-3 border-2 border-slate-200 rounded-xl outline-none focus:border-purple-500" onkeypress="if(event.key==='Enter') handleAiChat()">
-                <button onclick="handleAiChat()" class="bg-gradient-to-br from-purple-600 to-purple-800 text-white px-6 py-3 rounded-xl font-bold">Enviar</button>
-            </div>
-        </div>
-    </div>
+<!-- TOTAL PRESUPUESTO -->
+<div class="bg-gradient-to-br from-campre-blue to-blue-900 p-6 rounded-2xl text-white text-center shadow-xl">
+<p class="text-xs uppercase tracking-widest opacity-70">Subtotal</p>
+<div id="subtotalDisplay" class="text-2xl font-bold">$0.00</div>
+<div class="grid grid-cols-3 gap-2 my-4 text-xs">
+<div class="bg-white/10 p-2 rounded"><span class="opacity-70">Ganancia:</span><br><span id="displayGanancia" class="font-bold">$0</span></div>
+<div class="bg-white/10 p-2 rounded"><span class="opacity-70">Impuestos:</span><br><span id="displayImpuestos" class="font-bold">$0</span></div>
+<div class="bg-white/10 p-2 rounded"><span class="opacity-70">Descuento:</span><br><span id="displayDescuento" class="font-bold">-$0</span></div>
+</div>
+<p class="text-xs uppercase tracking-widest opacity-70 mt-4">Total Final</p>
+<div id="totalPresupuesto" class="text-5xl font-black my-2">$0.00</div>
+<div class="grid grid-cols-2 gap-2 mt-4 text-sm">
+<div class="bg-green-500/30 p-2 rounded"><span class="opacity-80">Anticipo:</span><br><span id="displayAnticipo" class="font-bold">$0</span></div>
+<div class="bg-orange-500/30 p-2 rounded"><span class="opacity-80">Saldo:</span><br><span id="displaySaldo" class="font-bold">$0</span></div>
+</div>
+</div>
+</div>
 
-    <div id="helpModal" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="modal-content bg-white max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col">
-            <div class="bg-gradient-to-r from-[#1E4B96] to-[#153873] p-5 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold">Centro de Ayuda</h2>
-                <button onclick="closeModal('helpModal')" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center">✕</button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6">
-                <p class="text-slate-600 text-sm">Esta aplicación está vinculada permanentemente a este dispositivo. No es posible compartir el acceso con terceros, ya que el código de activación se invalida después del primer uso.</p>
-            </div>
-        </div>
-    </div>
+<!-- ============ TAB 3: ENTREGA ============ -->
+<div id="tabEntrega" class="tab-content hidden">
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-low">ENTREGABLE</span>
+<h2 class="text-lg font-bold text-campre-blue">Datos del Cliente</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<input type="text" id="clientName" placeholder="Nombre del Cliente *" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+<input type="text" id="clientPhone" placeholder="Teléfono / WhatsApp *" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+<input type="email" id="clientEmail" placeholder="Email (Opcional)" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+<input type="text" id="clientAddress" placeholder="Dirección del Proyecto" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+</div>
+</div>
 
-    <div id="courseModal" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="modal-content bg-white max-w-3xl w-full rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-5 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold">Curso Completo CAMPRE</h2>
-                <button onclick="closeModal('courseModal')" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center">✕</button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <section class="bg-gradient-to-br from-[#1E4B96]/5 to-transparent p-5 rounded-2xl border border-[#1E4B96]/10">
-                    <h3 class="font-bold text-lg text-[#1E4B96] mb-3">MÓDULO I: Fundamentos y Seguridad</h3>
-                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
-                        <li><strong>Resistencia térmica:</strong> hasta 70°C (ocasional) / 45°C (prolongada)</li>
-                        <li><strong>Resistencia física:</strong> 65 N/m²</li>
-                        <li>Almacenar entre 18°C y 30°C, lugar seco. Ventilación adecuada.</li>
-                    </ul>
-                </section>
-                <section class="bg-gradient-to-br from-[#8CB64E]/5 to-transparent p-5 rounded-2xl border border-[#8CB64E]/10">
-                    <h3 class="font-bold text-lg text-[#1E4B96] mb-3">MÓDULO II: Preparación y Aplicación</h3>
-                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
-                        <li><strong>Preparación:</strong> Enrazado, limpieza con desengrasante, sellado (secar 8h).</li>
-                        <li><strong>Aplicación:</strong> 1 L/m² por cada 1mm. Proporción 2:1. Mezclar 2-3 min.</li>
-                        <li><strong>Curado:</strong> 0-40min (líquido), 2-4h (sensible al polvo), >48h (curado total).</li>
-                    </ul>
-                </section>
-                <div class="grid grid-cols-2 gap-3 pt-4">
-                    <button onclick="downloadCoursePDF()" class="bg-gradient-to-br from-red-500 to-red-700 text-white px-6 py-4 rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2">📄 Descargar PDF</button>
-                    <button onclick="downloadCourseWord()" class="bg-gradient-to-br from-blue-500 to-blue-700 text-white px-6 py-4 rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2">📝 Descargar Word</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-low">ENTREGABLE</span>
+<h2 class="text-lg font-bold text-campre-blue">Datos del Contratista</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<input type="text" id="contractorName" value="C.A. Medina Plásticos Reforzados" class="p-3 border-2 border-slate-200 rounded-xl">
+<input type="text" id="contractorRIF" placeholder="RIF / ID Fiscal" class="p-3 border-2 border-slate-200 rounded-xl">
+<input type="text" id="contractorPhone" placeholder="Teléfono de contacto" class="p-3 border-2 border-slate-200 rounded-xl">
+<input type="text" id="contractorEmail" placeholder="Email de contacto" class="p-3 border-2 border-slate-200 rounded-xl">
+</div>
+</div>
+
+<div class="mb-6">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-2">Notas y Observaciones</label>
+<textarea id="notas" rows="3" placeholder="Condiciones especiales, garantías adicionales, detalles del proyecto..." class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none"></textarea>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<button onclick="downloadPresupuestoPDF()" class="bg-campre-blue text-white py-4 rounded-xl font-bold hover:bg-blue-800 transition flex items-center justify-center gap-2">
+📄 Descargar PDF Completo
+</button>
+<button onclick="enviarWhatsApp()" class="bg-green-500 text-white py-4 rounded-xl font-bold hover:bg-green-600 transition flex items-center justify-center gap-2">
+💬 Enviar por WhatsApp
+</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- BOTÓN FLOTANTE DE ACCESO RÁPIDO A ENTREGA -->
+<button id="btnEntregarPresupuesto" onclick="switchTab('tabEntrega')" class="fixed bottom-6 right-6 bg-campre-blue text-white py-3 px-6 rounded-full shadow-xl hover:scale-105 transition-transform font-bold border-2 border-white z-40">
+📤 ENTREGAR PRESUPUESTO
+</button>
+
+<!-- ============ MODAL AYUDA ============ -->
+<div id="helpModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+<div class="bg-white max-w-2xl w-full rounded-2xl p-8 max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-6 border-b pb-4">
+<h2 class="text-2xl font-bold text-campre-blue">Manual de Usuario</h2>
+<button onclick="closeModal('helpModal')" class="text-slate-400 font-bold text-xl">X</button>
+</div>
+<div class="space-y-5 text-slate-700 text-sm">
+<section>
+<h3 class="font-bold text-campre-blue text-base">🔬 1. Cálculo Técnico</h3>
+<p>Define el tipo de resina, superficie y proyecto. Ingresa dimensiones y obtén el cálculo exacto de materiales con margen de desperdicio configurable.</p>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base">💼 2. Presupuesto</h3>
+<p>Asigna costos a materiales, agrega insumos adicionales y mano de obra. Configura margen de ganancia, impuestos, descuentos y anticipo.</p>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base">📤 3. Entrega</h3>
+<p>Completa los datos del cliente y contratista. Descarga PDF profesional o envía directamente por WhatsApp.</p>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base">⚙️ Parámetros Avanzados</h3>
+<p>Configura temperatura, humedad, desperdicio, capas, pigmentos y más. Las alertas ambientales te avisarán si las condiciones no son óptimas.</p>
+</section>
+<section class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+<h3 class="font-bold text-campre-blue text-base">💡 Consejos Pro</h3>
+<ul class="list-disc ml-4 space-y-1 mt-2">
+<li>Temperatura ideal: 20-30°C</li>
+<li>Humedad ideal: 40-60%</li>
+<li>Proporción Epoxi: 2:1 (Resina:Catalizador)</li>
+<li>Proporción Poliéster: 1-2% catalizador</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+
+<!-- ============ MODAL CURSO ============ -->
+<div id="courseModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+<div class="bg-white max-w-3xl w-full rounded-2xl p-8 max-h-[85vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold text-campre-blue">📖 CURSO COMPLETO CAMPRE</h2>
+<button onclick="closeModal('courseModal')" class="text-slate-400 font-bold text-xl">X</button>
+</div>
+<div class="space-y-5 text-slate-700 text-sm">
+<section class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+<h3 class="font-bold text-campre-blue text-base">I. Curso de Resina Epoxi de Alto Tránsito</h3>
+<p><strong>Objetivo:</strong> Dominar técnicas de aplicación de porcelanato líquido en pisos, muebles y superficies diversas.</p>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base border-b border-campre-green pb-1">II. Especificaciones Técnicas</h3>
+<ul class="list-disc ml-4 space-y-1">
+<li><strong>Resistencia térmica:</strong> hasta 70°C (ocasional) / 45°C (prolongada)</li>
+<li><strong>Resistencia física:</strong> 65 N/m²</li>
+<li>Alta resistencia química, flexibilidad y adherencia</li>
+<li>Acabado de alto brillo, contracción casi nula</li>
+</ul>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base border-b border-campre-green pb-1">III. Proporciones y Mezcla</h3>
+<ul class="list-disc ml-4 space-y-1">
+<li><strong>Epoxi:</strong> Proporción 2:1 (Resina:Catalizador)</li>
+<li><strong>Poliéster:</strong> Catalizador 1-2% (estireno inflamable, 33°C)</li>
+<li>Mezclar vigorosamente 2-3 minutos integrando paredes</li>
+<li>Pigmentos: máximo 5% del total</li>
+</ul>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base border-b border-campre-green pb-1">IV. Aplicación en Pisos</h3>
+<ol class="list-decimal ml-4 space-y-1">
+<li><strong>Preparación:</strong> Lijado, enrazado y limpieza profunda</li>
+<li><strong>Imprimación:</strong> Capa selladora, secado 8 horas</li>
+<li><strong>Vaciado:</strong> 1 L/m² por cada 1mm de espesor</li>
+<li><strong>Burbujas:</strong> Alcohol >95%, pistola de calor o rodillo de púas</li>
+</ol>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base border-b border-campre-green pb-1">V. Aplicación en Madera</h3>
+<ol class="list-decimal ml-4 space-y-1">
+<li>Limpieza profunda</li>
+<li>Sellado de poros</li>
+<li>Encofrado (molde)</li>
+<li>Vertido por capas</li>
+<li>Desmolde después de 48h</li>
+</ol>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base border-b border-campre-green pb-1">VI. Resumen de Tiempos</h3>
+<ul class="list-disc ml-4 space-y-1">
+<li><strong>0-40 min:</strong> Líquido autonivelante</li>
+<li><strong>40 min - 2h:</strong> Viscoso, aún manejable</li>
+<li><strong>2-4h:</strong> Sensible al polvo</li>
+<li><strong>24-48h:</strong> Tránsito ligero</li>
+<li><strong>>48h:</strong> Curado total</li>
+</ul>
+</section>
+<section>
+<h3 class="font-bold text-campre-blue text-base border-b border-campre-green pb-1">VII. Glosario</h3>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div><strong>Enrazado:</strong> Nivelación con carga inerte</div>
+<div><strong>Catalizador:</strong> Agente endurecedor</div>
+<div><strong>Epoxi:</strong> Polímero termoestable</div>
+<div><strong>Poliéster:</strong> Vida útil 6 meses</div>
+<div><strong>Estireno:</strong> Solvente volátil</div>
+<div><strong>Porcelanato:</strong> Epóxico autonivelante</div>
+</div>
+</section>
+<div class="grid grid-cols-2 gap-3 pt-4">
+<button onclick="downloadCoursePDF()" class="bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600">📄 Descargar PDF</button>
+<button onclick="downloadCourseWord()" class="bg-blue-500 text-white py-3 rounded-xl font-bold hover:bg-blue-600">📝 Descargar Word</button>
+</div>
+</div>
+</div>
 </div>
 
 <script>
-// ============ SECURITY SYSTEM (DEVICE BINDING) ============
-const ADMIN_PASSWORD = 'CAMPRE2026$Master'; // ⚠️ CAMBIAR EN PRODUCCIÓN
+let currentTab = 'tabTecnico';
 
-// Generate or get unique device ID
-function getDeviceId() {
-    let deviceId = localStorage.getItem('campre_device_id');
-    if (!deviceId) {
-        deviceId = 'DEV-' + Math.random().toString(36).substr(2, 9).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
-        localStorage.setItem('campre_device_id', deviceId);
-    }
-    return deviceId;
-}
-
-function initSecurity() {
-    if (!localStorage.getItem('campre_codes')) {
-        const demoCodes = [{
-            code: 'CAMPRE-DEMO-TEST-1234',
-            clientName: 'Usuario Demo',
-            clientEmail: 'demo@campre.com',
-            createdAt: new Date().toISOString(),
-            isClaimed: false,
-            claimedDeviceId: null,
-            status: 'active'
-        }];
-        localStorage.setItem('campre_codes', JSON.stringify(demoCodes));
-    }
-}
-
-function formatCode(input) {
-    let value = input.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-    if (!value.startsWith('CAMPRE')) value = 'CAMPRE' + value.replace('CAMPRE', '');
-    let parts = value.split('-').filter(p => p);
-    if (parts.length > 4) parts = parts.slice(0, 4);
-    input.value = parts.join('-');
-}
-
-function checkAccess() {
-    const session = JSON.parse(localStorage.getItem('campre_session') || 'null');
-    const deviceId = getDeviceId();
-    
-    if (session && session.deviceId === deviceId) {
-        grantAccess(session.clientName, session.code);
-        return;
-    }
-}
-
-function validateAccess() {
-    const codeInput = document.getElementById('accessCode');
-    const code = codeInput.value.trim().toUpperCase();
-    const errorDiv = document.getElementById('loginError');
-    
-    if (!code) {
-        showError('Por favor ingresa un código de activación');
-        return;
-    }
-    
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    const validCode = codes.find(c => c.code === code);
-    const deviceId = getDeviceId();
-    
-    if (!validCode) {
-        showError('❌ Código no válido. Verifica e intenta de nuevo.');
-        codeInput.classList.add('error');
-        setTimeout(() => codeInput.classList.remove('error'), 500);
-        return;
-    }
-    
-    if (validCode.status === 'blocked') {
-        showError('🚫 Este acceso ha sido bloqueado por CAMPRE.');
-        return;
-    }
-    
-    // LOGICA DE VINCULACIÓN AL DISPOSITIVO
-    if (validCode.isClaimed) {
-        if (validCode.claimedDeviceId === deviceId) {
-            // Es el mismo dispositivo, permitir acceso vitalicio
-            grantAccess(validCode.clientName, validCode.code);
-        } else {
-            // Alguien más ya lo usó
-            showError('⚠️ Este código ya fue activado en otro dispositivo. Es de uso exclusivo e intransferible.');
-            codeInput.classList.add('error');
-            setTimeout(() => {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('blockedMessage').classList.remove('hidden');
-            }, 1500);
-        }
-        return;
-    }
-    
-    // PRIMERA VEZ: RECLAMAR EL CÓDIGO
-    validCode.isClaimed = true;
-    validCode.claimedDeviceId = deviceId;
-    validCode.claimedAt = new Date().toISOString();
-    localStorage.setItem('campre_codes', JSON.stringify(codes));
-    
-    const session = { code: validCode.code, clientName: validCode.clientName, deviceId: deviceId };
-    localStorage.setItem('campre_session', JSON.stringify(session));
-    
-    grantAccess(validCode.clientName, validCode.code);
-}
-
-function showError(msg) {
-    const errorDiv = document.getElementById('loginError');
-    errorDiv.textContent = msg;
-    errorDiv.classList.remove('hidden');
-    setTimeout(() => errorDiv.classList.add('hidden'), 5000);
-}
-
-function grantAccess(clientName, code) {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
-    document.getElementById('currentUserDisplay').textContent = clientName;
-    showToast(`✅ Bienvenido, ${clientName}. Acceso vitalicio concedido.`, 'success');
-    calcular();
-}
-
-function logout() {
-    if (confirm('¿Cerrar sesión en este dispositivo? Podrás volver a entrar con tu código.')) {
-        localStorage.removeItem('campre_session');
-        location.reload();
-    }
-}
-
-// ============ ADMIN PANEL ============
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        e.preventDefault();
-        openAdminLogin();
-    }
-});
-
-function openAdminLogin() {
-    const password = prompt('🔐 Contraseña de Administrador CAMPRE:');
-    if (password === ADMIN_PASSWORD) {
-        document.getElementById('adminPanel').classList.add('active');
-        loadCodesTable();
-    } else if (password !== null) {
-        alert('❌ Contraseña incorrecta');
-    }
-}
-
-function closeAdmin() { document.getElementById('adminPanel').classList.remove('active'); }
-
-function generateNewCode() {
-    const name = document.getElementById('clientName').value.trim();
-    const email = document.getElementById('clientEmail').value.trim();
-    if (!name) { showToast('Ingresa el nombre del cliente', 'error'); return; }
-    
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const segment = () => Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    const newCode = `CAMPRE-${segment()}-${segment()}-${segment()}`;
-    
-    const codeObj = {
-        code: newCode, clientName: name, clientEmail: email,
-        createdAt: new Date().toISOString(),
-        isClaimed: false, claimedDeviceId: null, status: 'active'
-    };
-    
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    codes.push(codeObj);
-    localStorage.setItem('campre_codes', JSON.stringify(codes));
-    
-    document.getElementById('generatedClientName').textContent = `${name} ${email ? '('+email+')' : ''}`;
-    document.getElementById('generatedCode').textContent = newCode;
-    document.getElementById('generatedCodeBox').classList.remove('hidden');
-    
-    document.getElementById('clientName').value = '';
-    document.getElementById('clientEmail').value = '';
-    loadCodesTable();
-    showToast('✅ Licencia generada exitosamente', 'success');
-}
-
-function copyGeneratedCode() {
-    navigator.clipboard.writeText(document.getElementById('generatedCode').textContent);
-    showToast('📋 Código copiado al portapapeles', 'success');
-}
-
-function loadCodesTable() {
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    const tbody = document.getElementById('codesTableBody');
-    tbody.innerHTML = '';
-    
-    codes.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
-    codes.forEach((c, idx) => {
-        let statusClass = 'status-active', statusText = '🟢 Disponible';
-        if (c.status === 'blocked') { statusClass = 'status-blocked'; statusText = '🔴 Bloqueado'; }
-        else if (c.isClaimed) { statusClass = 'status-claimed'; statusText = '🔵 Activado'; }
-        
-        const tr = document.createElement('tr');
-        tr.className = 'border-b border-slate-100 hover:bg-slate-50';
-        tr.innerHTML = `
-            <td class="p-3"><div class="font-semibold text-slate-800">${c.clientName}</div><div class="text-xs text-slate-500">${c.clientEmail || '-'}</div></td>
-            <td class="p-3"><span class="code-display">${c.code}</span></td>
-            <td class="p-3"><span class="${statusClass}">${statusText}</span></td>
-            <td class="p-3 text-xs text-slate-600 font-mono">${c.claimedDeviceId ? c.claimedDeviceId.substring(0,15)+'...' : 'Sin vincular'}</td>
-            <td class="p-3">
-                <div class="flex gap-1">
-                    <button onclick="resetClaim(${idx})" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-2 py-1 rounded" title="Liberar dispositivo (si el cliente cambió de celular)">🔄 Liberar</button>
-                    <button onclick="toggleCodeStatus(${idx})" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded" title="Bloquear/Desbloquear">${c.status === 'blocked' ? '🔓' : '🔒'}</button>
-                    <button onclick="deleteCode(${idx})" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded">🗑️</button>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-    document.getElementById('noCodesMsg').classList.toggle('hidden', codes.length > 0);
-}
-
-function resetClaim(idx) {
-    if (!confirm('¿Liberar este código? El cliente podrá activarlo en un nuevo dispositivo.')) return;
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    codes[idx].isClaimed = false;
-    codes[idx].claimedDeviceId = null;
-    localStorage.setItem('campre_codes', JSON.stringify(codes));
-    loadCodesTable();
-    showToast('Dispositivo liberado', 'info');
-}
-
-function toggleCodeStatus(idx) {
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    codes[idx].status = codes[idx].status === 'blocked' ? 'active' : 'blocked';
-    localStorage.setItem('campre_codes', JSON.stringify(codes));
-    loadCodesTable();
-}
-
-function deleteCode(idx) {
-    if (!confirm('¿Eliminar permanentemente esta licencia?')) return;
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    codes.splice(idx, 1);
-    localStorage.setItem('campre_codes', JSON.stringify(codes));
-    loadCodesTable();
-}
-
-function filterCodes() {
-    const search = document.getElementById('searchCodes').value.toLowerCase();
-    document.querySelectorAll('#codesTableBody tr').forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(search) ? '' : 'none';
-    });
-}
-
-function exportCodesList() {
-    const codes = JSON.parse(localStorage.getItem('campre_codes') || '[]');
-    let csv = 'Cliente,Email,Codigo,Estado,Dispositivo Vinculado\n';
-    codes.forEach(c => {
-        csv += `"${c.clientName}","${c.clientEmail}","${c.code}","${c.isClaimed ? 'Activado' : 'Disponible'}","${c.claimedDeviceId || 'Ninguno'}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `CAMPRE_Licencias_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    showToast('📥 Lista exportada', 'success');
-}
-
-// ============ APP FUNCTIONS (Resumidas, misma lógica anterior) ============
-let currentMode = 'simple';
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
 function showModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('budgetSection').classList.toggle('hidden', mode !== 'integral');
-    document.getElementById('modeSimple').className = mode === 'simple' ? 'px-6 py-2.5 rounded-full font-semibold text-sm transition-all bg-white shadow text-[#1E4B96]' : 'px-6 py-2.5 rounded-full font-semibold text-sm transition-all text-slate-500';
-    document.getElementById('modeIntegral').className = mode === 'integral' ? 'px-6 py-2.5 rounded-full font-semibold text-sm transition-all bg-white shadow text-[#1E4B96]' : 'px-6 py-2.5 rounded-full font-semibold text-sm transition-all text-slate-500';
-    calcular();
-}
-function applyPreset(l, a, e) { document.getElementById('largo').value = l; document.getElementById('ancho').value = a; document.getElementById('espesor').value = e; calcular(); showToast('Ejemplo aplicado', 'info'); }
-function addRow(type) {
-    const list = document.getElementById(type + 'List');
-    const row = document.createElement('div');
-    row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded-xl items-center';
-    row.innerHTML = `<input type="text" placeholder="Concepto" class="col-span-5 p-2 border-2 border-slate-200 rounded-lg text-sm"><input type="number" placeholder="Cant" class="col-span-2 p-2 border-2 border-slate-200 rounded-lg text-sm qty" oninput="calcular()"><input type="number" placeholder="$" class="col-span-3 p-2 border-2 border-slate-200 rounded-lg text-sm price" oninput="calcular()"><button onclick="this.parentElement.remove(); calcular();" class="col-span-2 bg-red-50 hover:bg-red-100 text-red-500 font-bold p-2 rounded-lg text-sm">✕</button>`;
-    list.appendChild(row);
-}
-function addExampleMaterials() {
-    [{name:'Pintura epoxi', qty:1, price:25}, {name:'Rodillo de púas', qty:1, price:15}].forEach(ex => {
-        const row = document.createElement('div');
-        row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded-xl items-center';
-        row.innerHTML = `<input type="text" value="${ex.name}" class="col-span-5 p-2 border-2 border-slate-200 rounded-lg text-sm"><input type="number" value="${ex.qty}" class="col-span-2 p-2 border-2 border-slate-200 rounded-lg text-sm qty" oninput="calcular()"><input type="number" value="${ex.price}" class="col-span-3 p-2 border-2 border-slate-200 rounded-lg text-sm price" oninput="calcular()"><button onclick="this.parentElement.remove(); calcular();" class="col-span-2 bg-red-50 hover:bg-red-100 text-red-500 font-bold p-2 rounded-lg text-sm">✕</button>`;
-        document.getElementById('materialsList').appendChild(row);
-    });
-    calcular();
-}
-function addExampleServices() {
-    [{name:'Preparación de superficie', qty:1, price:50}, {name:'Aplicación de resina', qty:1, price:80}].forEach(ex => {
-        const row = document.createElement('div');
-        row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded-xl items-center';
-        row.innerHTML = `<input type="text" value="${ex.name}" class="col-span-5 p-2 border-2 border-slate-200 rounded-lg text-sm"><input type="number" value="${ex.qty}" class="col-span-2 p-2 border-2 border-slate-200 rounded-lg text-sm qty" oninput="calcular()"><input type="number" value="${ex.price}" class="col-span-3 p-2 border-2 border-slate-200 rounded-lg text-sm price" oninput="calcular()"><button onclick="this.parentElement.remove(); calcular();" class="col-span-2 bg-red-50 hover:bg-red-100 text-red-500 font-bold p-2 rounded-lg text-sm">✕</button>`;
-        document.getElementById('servicesList').appendChild(row);
-    });
-    calcular();
-}
-function calcular() {
-    const l = parseFloat(document.getElementById('largo').value) || 0;
-    const a = parseFloat(document.getElementById('ancho').value) || 0;
-    const e = parseFloat(document.getElementById('espesor').value) || 1;
-    const area = (l * a) / 10000;
-    const vol = area * e;
-    const total = (area * e) * 1.05;
-    const cat = total / 3;
-    const res = total - cat;
-    document.getElementById('displayTotal').textContent = total.toFixed(2);
-    document.getElementById('valResina').textContent = res.toFixed(2);
-    document.getElementById('valCatalizador').textContent = cat.toFixed(2);
-    document.getElementById('areaDisplay').textContent = area.toFixed(2) + ' m²';
-    document.getElementById('volumenDisplay').textContent = vol.toFixed(2) + ' L';
-    if (currentMode === 'integral') {
-        let t = (res * (parseFloat(document.getElementById('costoResina').value)||0)) + (cat * (parseFloat(document.getElementById('costoCatalizador').value)||0));
-        ['materials', 'services'].forEach(type => {
-            document.getElementById(type + 'List').querySelectorAll('.grid').forEach(row => {
-                t += ((parseFloat(row.querySelector('.qty').value)||0) * (parseFloat(row.querySelector('.price').value)||0));
-            });
-        });
-        document.getElementById('totalPresupuesto').textContent = t.toFixed(2);
-    }
-}
-function guardarProyecto() { showToast('💾 Proyecto guardado en este dispositivo', 'success'); }
-function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFillColor(30, 75, 150); doc.rect(0, 0, 210, 40, 'F');
-    doc.setTextColor(255); doc.setFontSize(24); doc.text('CAMPRE PRO', 105, 20, {align:'center'});
-    doc.setFontSize(12); doc.text(`Proyecto: ${document.getElementById('projectName').value}`, 20, 60);
-    doc.setFontSize(14); doc.text('Materiales:', 20, 80);
-    doc.setFontSize(12); doc.text(`Resina A: ${document.getElementById('valResina').textContent} kg`, 20, 90);
-    doc.text(`Catalizador B: ${document.getElementById('valCatalizador').textContent} kg`, 20, 100);
-    doc.setFont(undefined, 'bold'); doc.text(`Total: ${document.getElementById('displayTotal').textContent} kg`, 20, 115);
-    doc.save('CAMPRE_Presupuesto.pdf');
-    showToast('📄 PDF exportado', 'success');
-}
-async function handleAiChat() {
-    const input = document.getElementById('aiInput');
-    const history = document.getElementById('chatHistory');
-    if (!input.value.trim()) return;
-    history.innerHTML += `<div class="flex gap-3 justify-end"><div class="bg-[#1E4B96] text-white p-3 rounded-2xl rounded-tr-none text-sm max-w-[80%]">${input.value}</div></div>`;
-    const prompt = input.value; input.value = '';
-    const loadId = 'load-' + Date.now();
-    history.innerHTML += `<div id="${loadId}" class="flex gap-3"><div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">🤖</div><div class="bg-white p-3 rounded-2xl border"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-    try {
-        // Nota: Reemplaza con tu API key real de Gemini si la tienes, o usa un mock para demo
-        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=", {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-        const data = await res.json();
-        document.getElementById(loadId).remove();
-        history.innerHTML += `<div class="flex gap-3"><div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">🤖</div><div class="bg-white p-3 rounded-2xl border border-slate-100 text-sm text-slate-700 max-w-[80%]">${data.candidates[0].content.parts[0].text}</div></div>`;
-    } catch(e) {
-        document.getElementById(loadId).innerHTML = `<div class="bg-red-50 p-3 rounded-2xl border border-red-200 text-sm text-red-700">Error de conexión IA.</div>`;
-    }
-    history.scrollTop = history.scrollHeight;
-}
-function downloadCoursePDF() { showToast('📥 Descargando PDF del curso...', 'success'); /* Lógica jsPDF del curso aquí */ }
-function downloadCourseWord() { showToast('📥 Descargando Word del curso...', 'success'); /* Lógica Blob Word aquí */ }
 
-// Initialize
-initSecurity();
-checkAccess();
+function switchTab(tab) {
+currentTab = tab;
+['tabTecnico', 'tabPresupuesto', 'tabEntrega'].forEach(t => {
+document.getElementById(t).classList.toggle('hidden', t !== tab);
+document.getElementById('btn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+document.getElementById('btn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('text-slate-500', t !== tab);
+});
+calcular();
+}
+
+function toggleCollapsible(id) {
+const el = document.getElementById(id);
+el.classList.toggle('open');
+const arrow = document.getElementById('arrow' + id.charAt(0).toUpperCase() + id.slice(1));
+arrow.textContent = el.classList.contains('open') ? '▲' : '▼';
+}
+
+function aplicarPresetProyecto() {
+const tipo = document.getElementById('tipoProyecto').value;
+const presets = {
+'piso': { espesor: 2, capas: 1 },
+'mesa': { espesor: 4, capas: 1 },
+'encimera': { espesor: 3, capas: 1 },
+'arte': { espesor: 5, capas: 1 },
+'relleno': { espesor: 10, capas: 1 }
+};
+if (presets[tipo]) {
+document.getElementById('espesor').value = presets[tipo].espesor;
+document.getElementById('capas').value = presets[tipo].capas;
+calcular();
+}
+}
+
+function addRow(type) {
+const list = document.getElementById(type + 'List');
+const row = document.createElement('div');
+row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded items-center';
+row.innerHTML = `<input type="text" placeholder="Concepto" class="col-span-6 p-2 border rounded text-sm">
+<input type="number" placeholder="Cant" class="col-span-2 p-2 border rounded qty text-sm" oninput="calcular()">
+<input type="number" placeholder="$" class="col-span-3 p-2 border rounded price text-sm" oninput="calcular()">
+<button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold">X</button>`;
+list.appendChild(row);
+}
+
+function addExampleMaterials() {
+const examples = [
+{name:'Sellador/Imprimación', qty:1, price:25},
+{name:'Rodillo de púas', qty:1, price:15},
+{name:'Guantes y EPP', qty:1, price:10},
+{name:'Lija industrial', qty:2, price:5}
+];
+examples.forEach(ex => {
+const row = document.createElement('div');
+row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded items-center';
+row.innerHTML = `<input type="text" value="${ex.name}" class="col-span-6 p-2 border rounded text-sm">
+<input type="number" value="${ex.qty}" class="col-span-2 p-2 border rounded qty text-sm" oninput="calcular()">
+<input type="number" value="${ex.price}" class="col-span-3 p-2 border rounded price text-sm" oninput="calcular()">
+<button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold">X</button>`;
+document.getElementById('materialsList').appendChild(row);
+});
+calcular();
+}
+
+function addExampleServices() {
+const examples = [
+{name:'Preparación de superficie', qty:1, price:50},
+{name:'Aplicación de imprimación', qty:1, price:30},
+{name:'Aplicación de resina', qty:1, price:80},
+{name:'Lijado entre capas', qty:1, price:20}
+];
+examples.forEach(ex => {
+const row = document.createElement('div');
+row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded items-center';
+row.innerHTML = `<input type="text" value="${ex.name}" class="col-span-6 p-2 border rounded text-sm">
+<input type="number" value="${ex.qty}" class="col-span-2 p-2 border rounded qty text-sm" oninput="calcular()">
+<input type="number" value="${ex.price}" class="col-span-3 p-2 border rounded price text-sm" oninput="calcular()">
+<button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold">X</button>`;
+document.getElementById('servicesList').appendChild(row);
+});
+calcular();
+}
+
+function calcular() {
+const largo = parseFloat(document.getElementById('largo').value) || 0;
+const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+const espesor = parseFloat(document.getElementById('espesor').value) || 1;
+const capas = parseInt(document.getElementById('capas').value) || 1;
+const tipoResina = document.getElementById('tipoResina').value;
+const desperdicio = parseFloat(document.getElementById('desperdicio').value);
+const temp = parseFloat(document.getElementById('temperatura').value);
+const hum = parseFloat(document.getElementById('humedad').value);
+
+// Alertas ambientales
+const alerta = document.getElementById('alertaAmbiental');
+let alertMsg = '';
+if (temp < 18 || temp > 32) alertMsg += `⚠️ Temperatura ${temp}°C fuera de rango ideal (20-30°C). `;
+if (hum < 40 || hum > 70) alertMsg += `⚠️ Humedad ${hum}% fuera de rango ideal (40-60%). `;
+if (alertMsg) { alerta.textContent = alertMsg; alerta.classList.remove('hidden'); }
+else { alerta.classList.add('hidden'); }
+
+// Cálculos base
+const areaM2 = (largo * ancho) / 10000;
+const volumenL = areaM2 * (espesor / 1000);
+const totalBase = volumenL * desperdicio * capas;
+
+let resina = 0, catalizador = 0, label1 = '', label2 = '';
+
+if (tipoResina === 'epoxi') {
+resina = totalBase * (2/3);
+catalizador = totalBase * (1/3);
+label1 = 'Resina Epoxi (A):';
+label2 = 'Catalizador (B):';
+} else {
+resina = totalBase;
+catalizador = totalBase * 0.02; // 2% de catalizador para poliéster
+label1 = 'Resina Poliéster:';
+label2 = 'Catalizador MEKP (2%):';
+}
+
+const pigmento = document.getElementById('colorPigmento').value !== 'none' ? totalBase * 0.05 : 0;
+const totalFinal = resina + catalizador + pigmento;
+
+// Actualizar UI
+document.getElementById('valArea').textContent = areaM2.toFixed(2) + ' m²';
+document.getElementById('valVolumen').textContent = volumenL.toFixed(2) + ' L';
+document.getElementById('labelComponente1').textContent = label1;
+document.getElementById('labelComponente2').textContent = label2;
+document.getElementById('valResina').textContent = resina.toFixed(3) + ' kg';
+document.getElementById('valCatalizador').textContent = catalizador.toFixed(3) + ' kg';
+document.getElementById('valPigmento').textContent = pigmento.toFixed(3) + ' kg';
+document.getElementById('displayTotal').textContent = totalFinal.toFixed(3) + ' kg';
+
+// Cálculo financiero (solo en tab presupuesto)
+if (currentTab === 'tabPresupuesto' || currentTab === 'tabEntrega') {
+const cR = parseFloat(document.getElementById('costoResina').value) || 0;
+const cC = parseFloat(document.getElementById('costoCatalizador').value) || 0;
+const cP = parseFloat(document.getElementById('costoPigmento').value) || 0;
+
+let subtotal = (resina * cR) + (catalizador * cC) + (pigmento * cP);
+
+['materials', 'services'].forEach(type => {
+document.getElementById(type + 'List').querySelectorAll('div').forEach(row => {
+const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+const price = parseFloat(row.querySelector('.price')?.value) || 0;
+subtotal += qty * price;
+});
+});
+
+const transporte = parseFloat(document.getElementById('transporte').value) || 0;
+subtotal += transporte;
+
+const margen = parseFloat(document.getElementById('margenGanancia').value) || 0;
+const ganancia = subtotal * (margen / 100);
+const conGanancia = subtotal + ganancia;
+
+const desc = parseFloat(document.getElementById('descuento').value) || 0;
+const montoDesc = conGanancia * (desc / 100);
+const conDescuento = conGanancia - montoDesc;
+
+const imp = parseFloat(document.getElementById('impuestos').value) || 0;
+const montoImp = conDescuento * (imp / 100);
+const totalFinal = conDescuento + montoImp;
+
+const ant = parseFloat(document.getElementById('anticipo').value) || 0;
+const anticipo = totalFinal * (ant / 100);
+const saldo = totalFinal - anticipo;
+
+document.getElementById('subtotalDisplay').textContent = '$' + subtotal.toFixed(2);
+document.getElementById('displayGanancia').textContent = '$' + ganancia.toFixed(2);
+document.getElementById('displayImpuestos').textContent = '$' + montoImp.toFixed(2);
+document.getElementById('displayDescuento').textContent = '-$' + montoDesc.toFixed(2);
+document.getElementById('totalPresupuesto').textContent = '$' + totalFinal.toFixed(2);
+document.getElementById('displayAnticipo').textContent = '$' + anticipo.toFixed(2);
+document.getElementById('displaySaldo').textContent = '$' + saldo.toFixed(2);
+}
+}
+
+function downloadPresupuestoPDF() {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+const clientName = document.getElementById('clientName').value || 'Cliente';
+const clientPhone = document.getElementById('clientPhone').value || '';
+const total = document.getElementById('totalPresupuesto').textContent;
+
+// Header
+doc.setFillColor(30, 75, 150);
+doc.rect(0, 0, 210, 40, 'F');
+doc.setTextColor(255);
+doc.setFontSize(22);
+doc.text('PRESUPUESTO CAMPRE', 105, 20, {align:'center'});
+doc.setFontSize(10);
+doc.text('C.A. Medina Plásticos Reforzados', 105, 30, {align:'center'});
+
+// Datos cliente
+doc.setTextColor(30, 75, 150);
+doc.setFontSize(14);
+doc.text('DATOS DEL CLIENTE', 20, 55);
+doc.setDrawColor(140, 182, 78);
+doc.line(20, 58, 190, 58);
+doc.setFontSize(11);
+doc.setTextColor(50);
+doc.text(`Cliente: ${clientName}`, 20, 68);
+doc.text(`Teléfono: ${clientPhone}`, 20, 76);
+doc.text(`Fecha: ${new Date().toLocaleDateString('es')}`, 20, 84);
+
+// Datos proyecto
+doc.setTextColor(30, 75, 150);
+doc.setFontSize(14);
+doc.text('DATOS DEL PROYECTO', 20, 100);
+doc.line(20, 103, 190, 103);
+doc.setFontSize(11);
+doc.setTextColor(50);
+doc.text(`Tipo de Resina: ${document.getElementById('tipoResina').value.toUpperCase()}`, 20, 113);
+doc.text(`Superficie: ${document.getElementById('tipoSuperficie').value}`, 20, 121);
+doc.text(`Dimensiones: ${document.getElementById('largo').value} x ${document.getElementById('ancho').value} cm, ${document.getElementById('espesor').value} mm`, 20, 129);
+doc.text(`Área: ${document.getElementById('valArea').textContent} | Volumen: ${document.getElementById('valVolumen').textContent}`, 20, 137);
+
+// Materiales
+doc.setTextColor(30, 75, 150);
+doc.setFontSize(14);
+doc.text('MATERIALES REQUERIDOS', 20, 155);
+doc.line(20, 158, 190, 158);
+doc.setFontSize(11);
+doc.setTextColor(50);
+doc.text(`${document.getElementById('labelComponente1').textContent} ${document.getElementById('valResina').textContent}`, 20, 168);
+doc.text(`${document.getElementById('labelComponente2').textContent} ${document.getElementById('valCatalizador').textContent}`, 20, 176);
+if (document.getElementById('colorPigmento').value !== 'none') {
+doc.text(`Pigmento: ${document.getElementById('valPigmento').textContent}`, 20, 184);
+}
+
+// Total
+doc.setFillColor(140, 182, 78);
+doc.rect(20, 200, 170, 30, 'F');
+doc.setTextColor(255);
+doc.setFontSize(14);
+doc.text('TOTAL:', 30, 215);
+doc.setFontSize(20);
+doc.text(total, 180, 218, {align:'right'});
+
+// Condiciones
+doc.setTextColor(100);
+doc.setFontSize(9);
+doc.text(`Validez: ${document.getElementById('validez').value} días | Plazo: ${document.getElementById('plazo').value} días | Garantía: ${document.getElementById('garantia').value} meses`, 105, 245, {align:'center'});
+doc.text(`Anticipo: ${document.getElementById('displayAnticipo').textContent} | Saldo: ${document.getElementById('displaySaldo').textContent}`, 105, 252, {align:'center'});
+
+// Notas
+const notas = document.getElementById('notas').value;
+if (notas) {
+doc.setFontSize(9);
+doc.setTextColor(80);
+doc.text('Observaciones:', 20, 265);
+doc.text(notas.substring(0, 100), 20, 272);
+}
+
+doc.save(`Presupuesto_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+}
+
+function enviarWhatsApp() {
+const name = document.getElementById('clientName').value || 'Cliente';
+const phone = document.getElementById('clientPhone').value || '';
+const total = document.getElementById('totalPresupuesto').textContent;
+const antic = document.getElementById('displayAnticipo').textContent;
+const saldo = document.getElementById('displaySaldo').textContent;
+const proyecto = document.getElementById('tipoProyecto').value;
+const area = document.getElementById('valArea').textContent;
+
+const msg = `*PRESUPUESTO CAMPRE*%0A%0A` +
+`*Cliente:* ${name}%0A` +
+`*Proyecto:* ${proyecto}%0A` +
+`*Área:* ${area}%0A%0A` +
+`*TOTAL:* ${total}%0A` +
+`*Anticipo:* ${antic}%0A` +
+`*Saldo:* ${saldo}%0A%0A` +
+`_Validez: ${document.getElementById('validez').value} días_`;
+
+const url = phone ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${msg}` : `https://wa.me/?text=${msg}`;
+window.open(url, '_blank');
+}
+
+function downloadCoursePDF() {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+doc.setFillColor(30, 75, 150);
+doc.rect(0, 0, 210, 50, 'F');
+doc.setTextColor(255);
+doc.setFontSize(26);
+doc.text('CURSO COMPLETO CAMPRE', 105, 25, {align:'center'});
+doc.setFontSize(11);
+doc.text('Domina la Resina Epóxica de Principio a Fin', 105, 38, {align:'center'});
+
+doc.setTextColor(30, 75, 150);
+doc.setFontSize(16);
+doc.text('I. ESPECIFICACIONES TÉCNICAS', 20, 70);
+doc.setFontSize(10);
+doc.setTextColor(50);
+const specs = ['Resistencia térmica: hasta 70°C', 'Resistencia física: 65 N/m²', 'Alta resistencia química', 'Acabado de alto brillo'];
+specs.forEach((s, i) => doc.text('• ' + s, 25, 80 + i*6));
+
+doc.setTextColor(30, 75, 150);
+doc.setFontSize(16);
+doc.text('II. PROPORCIONES', 20, 120);
+doc.setFontSize(10);
+doc.setTextColor(50);
+doc.text('• Epoxi: 2:1 (Resina:Catalizador)', 25, 130);
+doc.text('• Poliéster: 1-2% catalizador', 25, 138);
+doc.text('• Pigmentos: máximo 5%', 25, 146);
+
+doc.setTextColor(30, 75, 150);
+doc.setFontSize(16);
+doc.text('III. TIEMPOS DE CURADO', 20, 170);
+doc.setFontSize(10);
+doc.setTextColor(50);
+const tiempos = ['0-40 min: Autonivelante', '2-4h: Sensible al polvo', '24-48h: Tránsito ligero', '>48h: Curado total'];
+tiempos.forEach((t, i) => doc.text('• ' + t, 25, 180 + i*6));
+
+doc.save('Curso_Completo_CAMPRE.pdf');
+}
+
+function downloadCourseWord() {
+const content = `<html><head><meta charset='utf-8'><title>Curso CAMPRE</title></head>
+<body style="font-family:Calibri">
+<h1 style="color:#1E4B96;text-align:center">CURSO COMPLETO CAMPRE</h1>
+<h2 style="color:#1E4B96">I. Especificaciones Técnicas</h2>
+<ul>
+<li>Resistencia térmica: hasta 70°C</li>
+<li>Resistencia física: 65 N/m²</li>
+<li>Alta resistencia química</li>
+</ul>
+<h2 style="color:#1E4B96">II. Proporciones</h2>
+<ul>
+<li>Epoxi: 2:1 (Resina:Catalizador)</li>
+<li>Poliéster: 1-2% catalizador</li>
+</ul>
+<h2 style="color:#1E4B96">III. Tiempos de Curado</h2>
+<ul>
+<li>0-40 min: Autonivelante</li>
+<li>24-48h: Tránsito ligero</li>
+<li>>48h: Curado total</li>
+</ul>
+</body></html>`;
+const blob = new Blob(['\ufeff', content], {type:'application/msword'});
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'Curso_Completo_CAMPRE.doc';
+a.click();
+}
+
+// Inicializar
+calcular();
 </script>
 </body>
 </html>
