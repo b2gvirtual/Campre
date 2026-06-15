@@ -277,11 +277,15 @@ ENTREGAR PRESUPUESTO
 <span class="priority-badge priority-high">VENTAS</span>
 <h2 class="text-lg font-bold text-campre-blue">Catálogo de Productos CAMPRE</h2>
 </div>
-<div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-6">
-<p class="text-sm text-blue-800 font-medium">📌 Nota: Este catálogo interactivo se actualiza periódicamente. La información oficial de productos, descripciones y precios es suministrada directamente por CAMPRE mediante los PDF de actualización entregados por la empresa.</p>
-</div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="catalogoCAMPRE">
 <!-- Se genera dinámicamente con JavaScript -->
+</div>
+
+<!-- TOTAL DEL CATÁLOGO -->
+<div class="mt-8 bg-campre-blue p-6 rounded-2xl text-white text-center shadow-xl sticky bottom-4">
+<p class="text-xs uppercase tracking-widest opacity-70">Total de Productos Seleccionados</p>
+<div id="catalogoTotalDisplay" class="text-4xl font-black my-2">$0.00</div>
+<p class="text-xs opacity-70">Este total es independiente del presupuesto de servicios</p>
 </div>
 </div>
 </div>
@@ -292,7 +296,7 @@ ENTREGAR PRESUPUESTO
 <!-- ============ MODAL ENTREGA (Aparece solo al tocar el botón) ============ -->
 <div id="entregaModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
 <div class="bg-white max-w-3xl w-full rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto relative">
-<button onclick="closeModal('entregaModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-2xl">✕</button>
+<button onclick="closeModal('entregaModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-2xl">X</button>
 <h2 class="text-2xl font-bold text-campre-blue mb-6 border-b pb-4">Cuestionario de Entrega de Presupuesto</h2>
 
 <div class="space-y-6">
@@ -347,7 +351,7 @@ ENTREGAR PRESUPUESTO
 </section>
 <section>
 <h3 class="font-bold text-campre-blue text-base">3. Catálogo CAMPRE</h3>
-<p>Consulta el catálogo interactivo de productos disponibles. La información se actualiza mediante los documentos PDF oficiales suministrados por la empresa.</p>
+<p>Consulta el catálogo interactivo de productos disponibles. El total de la compra se calcula automáticamente en la parte inferior de la pestaña.</p>
 </section>
 <section class="bg-blue-50 p-4 rounded-xl border border-blue-200">
 <h3 class="font-bold text-campre-blue text-base">Consejos Pro</h3>
@@ -567,7 +571,7 @@ ENTREGAR PRESUPUESTO
 <script>
 let currentTab = 'tabTecnico';
 
-// CATÁLOGO INTERACTIVO CAMPRE (Independiente del presupuesto)
+// CATÁLOGO INTERACTIVO CAMPRE
 const productosCAMPRE = [
     { id: 1, nombre: "Resina Epoxi A (Kit 3kg)", descripcion: "Resina de alta resistencia, acabado brillante. Ideal para pisos y mesas.", precio: 60.00, unidad: "Kit" },
     { id: 2, nombre: "Catalizador B (Kit 3kg)", descripcion: "Endurecedor de secado rápido. Proporción 2:1 con la resina.", precio: 40.00, unidad: "Kit" },
@@ -628,6 +632,7 @@ function updateQty(id, change) {
     let newVal = parseInt(input.value) + change;
     if (newVal < 0) newVal = 0;
     input.value = newVal;
+    calcular();
 }
 
 function addRow(type) {
@@ -745,6 +750,14 @@ function calcular() {
         document.getElementById('displayAnticipo').textContent = '$' + anticipo.toFixed(2);
         document.getElementById('displaySaldo').textContent = '$' + saldo.toFixed(2);
     }
+
+    // 3. Cálculo del Total del Catálogo (Siempre activo para mostrar el total de la compra)
+    let catalogoTotal = 0;
+    productosCAMPRE.forEach(prod => {
+        const qty = parseInt(document.getElementById(`qty-${prod.id}`).value) || 0;
+        catalogoTotal += qty * prod.precio;
+    });
+    document.getElementById('catalogoTotalDisplay').textContent = '$' + catalogoTotal.toFixed(2);
 }
 
 function downloadPresupuestoPDF() {
