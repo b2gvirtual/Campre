@@ -12,8 +12,6 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 .text-campre-blue { color: #1E4B96; }
 .bg-campre-green { background-color: #8CB64E; }
 .border-campre-green { border-color: #8CB64E; }
-.bevel-btn { border-bottom: 6px solid #6a8c3d; transition: all 0.1s ease; }
-.bevel-btn:active { border-bottom: 0px; transform: translateY(6px); }
 .modal { display: none; }
 .modal.active { display: flex; }
 .tab-btn { transition: all 0.2s ease; }
@@ -44,8 +42,6 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 .nav-btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 12px; font-weight: 600; transition: all 0.2s ease; border: 1px solid transparent; cursor: pointer; white-space: nowrap; }
 .nav-btn-ghost { background: transparent; color: #64748b; border-color: #e2e8f0; }
 .nav-btn-ghost:hover { background: #f1f5f9; color: #1E4B96; border-color: #1E4B96; }
-.nav-btn-accent { background: #8CB64E; color: white; }
-.nav-btn-accent:hover { background: #6a8c3d; }
 @media (max-width: 640px) {
     .top-bar-inner { padding: 0.5rem 1rem; }
     .nav-btn { padding: 0.4rem 0.75rem; font-size: 11px; }
@@ -70,7 +66,6 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 <div class="nav-actions">
 <button onclick="showModal('helpModal')" class="nav-btn nav-btn-ghost">Ayuda</button>
 <button onclick="showModal('courseModal')" class="nav-btn nav-btn-ghost">Curso Completo</button>
-<button onclick="switchTab('tabEntrega')" class="nav-btn nav-btn-accent">Entregar Presupuesto</button>
 </div>
 </div>
 </div>
@@ -83,17 +78,15 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 
 <!-- TABS PRINCIPALES -->
 <div class="flex border-b border-slate-200 bg-slate-50">
-<button onclick="switchTab('tabTecnico')" id="btnTabTecnico" class="tab-btn active flex-1 py-4 font-bold text-sm">CALCULO TECNICO</button>
+<button onclick="switchTab('tabTecnico')" id="btnTabTecnico" class="tab-btn active flex-1 py-4 font-bold text-sm">CÁLCULO TÉCNICO</button>
 <button onclick="switchTab('tabPresupuesto')" id="btnTabPresupuesto" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">PRESUPUESTO</button>
-<button onclick="switchTab('tabEntrega')" id="btnTabEntrega" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">ENTREGA</button>
+<button onclick="switchTab('tabCatalogo')" id="btnTabCatalogo" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">CATÁLOGO CAMPRE</button>
 </div>
 
 <div class="p-6 md:p-8">
 
 <!-- ============ TAB 1: CÁLCULO TÉCNICO ============ -->
 <div id="tabTecnico" class="tab-content">
-
-<!-- DIMENSIONES -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 <div class="space-y-4">
 <h2 class="text-lg font-bold text-campre-blue border-b-2 border-campre-green pb-2">Dimensiones</h2>
@@ -150,18 +143,6 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 
 <!-- ============ TAB 2: PRESUPUESTO ============ -->
 <div id="tabPresupuesto" class="tab-content hidden">
-
-<!-- VENTAS DE PRODUCTOS CAMPRE (CATÁLOGO INTERACTIVO) -->
-<div class="mb-6">
-<div class="flex items-center gap-2 mb-3">
-<span class="priority-badge priority-high">CATÁLOGO</span>
-<h2 class="text-lg font-bold text-campre-blue">Ventas de Productos CAMPRE</h2>
-</div>
-<p class="text-sm text-slate-600 mb-4">Seleccione la cantidad de productos que desea incluir. Esta información es suministrada directamente por CAMPRE como proveedor.</p>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="catalogoCAMPRE">
-<!-- Se genera dinámicamente con JavaScript -->
-</div>
-</div>
 
 <!-- COSTOS BASE -->
 <div class="mb-6">
@@ -266,7 +247,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 </div>
 
 <!-- TOTAL PRESUPUESTO -->
-<div class="bg-gradient-to-br from-campre-blue to-blue-900 p-6 rounded-2xl text-white text-center shadow-xl">
+<div class="bg-gradient-to-br from-campre-blue to-blue-900 p-6 rounded-2xl text-white text-center shadow-xl mb-6">
 <p class="text-xs uppercase tracking-widest opacity-70">Subtotal</p>
 <div id="subtotalDisplay" class="text-2xl font-bold">$0.00</div>
 <div class="grid grid-cols-3 gap-2 my-4 text-xs">
@@ -281,51 +262,70 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 <div class="bg-orange-500/30 p-2 rounded"><span class="opacity-80">Saldo:</span><br><span id="displaySaldo" class="font-bold">$0</span></div>
 </div>
 </div>
+
+<!-- BOTÓN PARA ABRIR CUESTIONARIO DE ENTREGA -->
+<button onclick="showModal('entregaModal')" class="w-full bg-campre-green hover:bg-[#6a8c3d] text-white py-4 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
+ENTREGAR PRESUPUESTO
+</button>
+
 </div>
 
-<!-- ============ TAB 3: ENTREGA ============ -->
-<div id="tabEntrega" class="tab-content hidden">
+<!-- ============ TAB 3: CATÁLOGO CAMPRE ============ -->
+<div id="tabCatalogo" class="tab-content hidden">
 <div class="mb-6">
 <div class="flex items-center gap-2 mb-3">
-<span class="priority-badge priority-low">ENTREGABLE</span>
-<h2 class="text-lg font-bold text-campre-blue">Datos del Cliente</h2>
+<span class="priority-badge priority-high">VENTAS</span>
+<h2 class="text-lg font-bold text-campre-blue">Catálogo de Productos CAMPRE</h2>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-<input type="text" id="clientName" placeholder="Nombre del Cliente *" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
-<input type="text" id="clientPhone" placeholder="Teléfono / WhatsApp *" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
-<input type="email" id="clientEmail" placeholder="Email (Opcional)" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
-<input type="text" id="clientAddress" placeholder="Dirección del Proyecto" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+<div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-6">
+<p class="text-sm text-blue-800 font-medium">📌 Nota: Este catálogo interactivo se actualiza periódicamente. La información oficial de productos, descripciones y precios es suministrada directamente por CAMPRE mediante los PDF de actualización entregados por la empresa.</p>
 </div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="catalogoCAMPRE">
+<!-- Se genera dinámicamente con JavaScript -->
 </div>
-
-<div class="mb-6">
-<div class="flex items-center gap-2 mb-3">
-<span class="priority-badge priority-low">ENTREGABLE</span>
-<h2 class="text-lg font-bold text-campre-blue">Datos del Contratista</h2>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-<input type="text" id="contractorName" value="C.A. Medina Plásticos Reforzados" class="p-3 border-2 border-slate-200 rounded-xl">
-<input type="text" id="contractorRIF" placeholder="RIF / ID Fiscal" class="p-3 border-2 border-slate-200 rounded-xl">
-<input type="text" id="contractorPhone" placeholder="Teléfono de contacto" class="p-3 border-2 border-slate-200 rounded-xl">
-<input type="text" id="contractorEmail" placeholder="Email de contacto" class="p-3 border-2 border-slate-200 rounded-xl">
 </div>
 </div>
 
-<div class="mb-6">
-<label class="text-xs font-bold text-slate-500 uppercase block mb-2">Notas y Observaciones</label>
-<textarea id="notas" rows="3" placeholder="Condiciones especiales, garantías adicionales, detalles del proyecto..." class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none"></textarea>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-<button onclick="downloadPresupuestoPDF()" class="bg-campre-blue text-white py-4 rounded-xl font-bold hover:bg-blue-800 transition">
-Descargar PDF Completo
-</button>
-<button onclick="enviarWhatsApp()" class="bg-green-500 text-white py-4 rounded-xl font-bold hover:bg-green-600 transition">
-Enviar por WhatsApp
-</button>
 </div>
 </div>
 
+<!-- ============ MODAL ENTREGA (Aparece solo al tocar el botón) ============ -->
+<div id="entregaModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+<div class="bg-white max-w-3xl w-full rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto relative">
+<button onclick="closeModal('entregaModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-2xl">✕</button>
+<h2 class="text-2xl font-bold text-campre-blue mb-6 border-b pb-4">Cuestionario de Entrega de Presupuesto</h2>
+
+<div class="space-y-6">
+    <div>
+        <h3 class="font-bold text-campre-blue mb-3 flex items-center gap-2"><span class="priority-badge priority-low">CLIENTE</span> Datos del Cliente</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="clientName" placeholder="Nombre del Cliente *" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+            <input type="text" id="clientPhone" placeholder="Teléfono / WhatsApp *" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+            <input type="email" id="clientEmail" placeholder="Email (Opcional)" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+            <input type="text" id="clientAddress" placeholder="Dirección del Proyecto" class="p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none">
+        </div>
+    </div>
+
+    <div>
+        <h3 class="font-bold text-campre-blue mb-3 flex items-center gap-2"><span class="priority-badge priority-low">CONTRATISTA</span> Datos del Contratista</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="contractorName" value="C.A. Medina Plásticos Reforzados" class="p-3 border-2 border-slate-200 rounded-xl">
+            <input type="text" id="contractorRIF" placeholder="RIF / ID Fiscal" class="p-3 border-2 border-slate-200 rounded-xl">
+            <input type="text" id="contractorPhone" placeholder="Teléfono de contacto" class="p-3 border-2 border-slate-200 rounded-xl">
+            <input type="text" id="contractorEmail" placeholder="Email de contacto" class="p-3 border-2 border-slate-200 rounded-xl">
+        </div>
+    </div>
+
+    <div>
+        <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Notas y Observaciones</label>
+        <textarea id="notas" rows="3" placeholder="Condiciones especiales, garantías adicionales, detalles del proyecto..." class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-campre-green outline-none"></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4">
+        <button onclick="downloadPresupuestoPDF()" class="bg-campre-blue text-white py-4 rounded-xl font-bold hover:bg-blue-800 transition">Descargar PDF Completo</button>
+        <button onclick="enviarWhatsApp()" class="bg-green-500 text-white py-4 rounded-xl font-bold hover:bg-green-600 transition">Enviar por WhatsApp</button>
+    </div>
+</div>
 </div>
 </div>
 
@@ -343,11 +343,11 @@ Enviar por WhatsApp
 </section>
 <section>
 <h3 class="font-bold text-campre-blue text-base">2. Presupuesto</h3>
-<p>Selecciona productos del catálogo interactivo de CAMPRE, asigna costos a materiales adicionales y mano de obra. Configura margen de ganancia, impuestos, descuentos y anticipo.</p>
+<p>Asigna costos a materiales, agrega insumos adicionales y mano de obra. Configura margen de ganancia, impuestos, descuentos y anticipo. Al finalizar, presiona "ENTREGAR PRESUPUESTO".</p>
 </section>
 <section>
-<h3 class="font-bold text-campre-blue text-base">3. Entrega</h3>
-<p>Completa los datos del cliente y contratista. Descarga un PDF profesional o envía el resumen directamente por WhatsApp.</p>
+<h3 class="font-bold text-campre-blue text-base">3. Catálogo CAMPRE</h3>
+<p>Consulta el catálogo interactivo de productos disponibles. La información se actualiza mediante los documentos PDF oficiales suministrados por la empresa.</p>
 </section>
 <section class="bg-blue-50 p-4 rounded-xl border border-blue-200">
 <h3 class="font-bold text-campre-blue text-base">Consejos Pro</h3>
@@ -370,13 +370,11 @@ Enviar por WhatsApp
 </div>
 
 <div class="space-y-6 text-slate-700">
-
 <div class="course-section">
 <h3>I. Curso de Resina Epoxi de Alto Tránsito</h3>
 <p><strong>Objetivo:</strong> Abordar técnicas para el manejo y aplicación de porcelanato líquido en diferentes superficies, incluyendo pisos 3D, garantizando seguridad y correcta aplicación.</p>
 <p><strong>Red de apoyo:</strong> Se invita a participar en grupos de debate y mantener contacto con el capacitador.</p>
 </div>
-
 <div class="course-section">
 <h3>II. Resina Epoxi: Especificaciones Técnicas</h3>
 <p><strong>Definición:</strong> Polímero que requiere un agente catalizador para endurecer.</p>
@@ -404,7 +402,6 @@ Enviar por WhatsApp
 <li>No desechar en el fuego.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>III. Recomendaciones de Trabajo (Resina Epoxi)</h3>
 <ul>
@@ -423,7 +420,6 @@ Enviar por WhatsApp
 <li><strong>48 hrs+:</strong> Transitable, pero no apta para peso excesivo ni lijado.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>IV. Aplicaciones y Pigmentos</h3>
 <p><strong>Aplicación principal:</strong> Revestimiento de grandes suelos continuos (cubre juntas, evita hongos/bacterias, aporta brillo y nivelación).</p>
@@ -436,7 +432,6 @@ Enviar por WhatsApp
 <li><strong>Aplicación:</strong> Añadir durante el proceso de remoción hasta obtener la tonalidad deseada.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>V. Guía de Aplicación en Pisos</h3>
 <p><strong>Preparación (Enrazado):</strong> Reparar ranuras, grietas y juntas. Si son pequeñas, usar resina/pintura epoxi con carga inerte (carbonato de calcio, talco, sílice). Si son grandes, usar cemento. Lijar y limpiar el polvo tras secar.</p>
@@ -452,7 +447,6 @@ Enviar por WhatsApp
 <li><strong>Acabado:</strong> Alcohol isopropílico (>95%), pistola de calor o soplete para burbujas.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>VI. Aplicación en Madera</h3>
 <ol>
@@ -467,13 +461,11 @@ Enviar por WhatsApp
 <li><strong>Desmolde:</strong> Retirar una vez seco.</li>
 </ol>
 </div>
-
 <div class="course-section">
 <h3>VII. Mesas de Cemento/Concreto</h3>
 <p>Proceso similar a pisos.</p>
 <p><strong>Bordes:</strong> Usar cinta/tirro si el vaciado es de 1mm. Para bordes verticales, aplicar capas muy finas con pincel para evitar el "descolgamiento".</p>
 </div>
-
 <div class="course-section">
 <h3>VIII. Consejos y Advertencias Finales</h3>
 <ul>
@@ -483,7 +475,6 @@ Enviar por WhatsApp
 <li><strong>Asistencia:</strong> Leer etiquetas de seguridad y contactar al fabricante ante dudas.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>IX. Resina Poliéster</h3>
 <ul>
@@ -496,7 +487,6 @@ Enviar por WhatsApp
 <li><strong>Molde:</strong> Se debe tener en cuenta que la reacción exotérmica puede deformar o romper el molde.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>X. Aplicación en Madera (Resina Poliéster)</h3>
 <ol>
@@ -511,14 +501,12 @@ Enviar por WhatsApp
 <li><strong>Paso 9:</strong> Desmoldar una vez seca.</li>
 </ol>
 </div>
-
 <div class="course-section">
 <h3>XI. Consejos y Advertencias (Resina Poliéster)</h3>
 <p><strong>Consejos:</strong> La preparación es más de la mitad del trabajo. Limitar la circulación de aire tras el vaciado reduce el riesgo de contaminación por partículas.</p>
 <p><strong>Advertencias:</strong> Usar equipo de protección (botas, guantes, gafas, mangas largas). Leer siempre la información técnica y de seguridad de la etiqueta.</p>
 <p><strong>Cemento:</strong> Para mesas de cemento, si se busca un borde vertical, aplicar capas muy finas con pincel para evitar que el producto se chorree o descuelgue.</p>
 </div>
-
 <div class="course-section">
 <h3>XII. Aplicación de Resina Epoxi (Pisos) - Resumen</h3>
 <ul>
@@ -528,7 +516,6 @@ Enviar por WhatsApp
 <li><strong>Tiempos:</strong> "Blanda" las primeras 24 horas; se puede caminar sobre ella tras 24 horas y colocar muebles tras 48 horas.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>XIII. Preparación y Sellado</h3>
 <ul>
@@ -537,7 +524,6 @@ Enviar por WhatsApp
 <li><strong>Fijación:</strong> Elementos como vinilos 3D deben fijarse con materiales que no contengan grasas para evitar desprendimientos.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>XIV. Reparación de Pisos</h3>
 <ul>
@@ -545,7 +531,6 @@ Enviar por WhatsApp
 <li><strong>Mezcla de reparación:</strong> Resina o pintura epoxi con carga inerte (carbonato de calcio, talco o sílice) para lograr viscosidad adecuada.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>XV. Pigmentos y Aplicaciones</h3>
 <ul>
@@ -553,7 +538,6 @@ Enviar por WhatsApp
 <li><strong>Usos:</strong> Pisos continuos, mesas, mesadas y bisutería.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>XVI. Curso y Seguridad</h3>
 <ul>
@@ -561,7 +545,6 @@ Enviar por WhatsApp
 <li><strong>Seguridad:</strong> Almacenar entre 18°C y 30°C, prohibido fumar y prohibido tirar al fuego.</li>
 </ul>
 </div>
-
 <div class="course-section">
 <h3>XVII. Resumen de Tiempos de Curado</h3>
 <ul>
@@ -573,7 +556,6 @@ Enviar por WhatsApp
 <li><strong>48 hrs+:</strong> Terminado (no aplicar presión excesiva ni lijar).</li>
 </ul>
 </div>
-
 <div class="grid grid-cols-2 gap-3 pt-4">
 <button onclick="downloadCoursePDF()" class="bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600">Descargar PDF</button>
 <button onclick="downloadCourseWord()" class="bg-blue-500 text-white py-3 rounded-xl font-bold hover:bg-blue-600">Descargar Word</button>
@@ -585,9 +567,7 @@ Enviar por WhatsApp
 <script>
 let currentTab = 'tabTecnico';
 
-// ==========================================
-// CATÁLOGO INTERACTIVO CAMPRE
-// ==========================================
+// CATÁLOGO INTERACTIVO CAMPRE (Independiente del presupuesto)
 const productosCAMPRE = [
     { id: 1, nombre: "Resina Epoxi A (Kit 3kg)", descripcion: "Resina de alta resistencia, acabado brillante. Ideal para pisos y mesas.", precio: 60.00, unidad: "Kit" },
     { id: 2, nombre: "Catalizador B (Kit 3kg)", descripcion: "Endurecedor de secado rápido. Proporción 2:1 con la resina.", precio: 40.00, unidad: "Kit" },
@@ -602,7 +582,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('active')
 
 function switchTab(tab) {
     currentTab = tab;
-    ['tabTecnico', 'tabPresupuesto', 'tabEntrega'].forEach(t => {
+    ['tabTecnico', 'tabPresupuesto', 'tabCatalogo'].forEach(t => {
         document.getElementById(t).classList.toggle('hidden', t !== tab);
         document.getElementById('btn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
         document.getElementById('btn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('text-slate-500', t !== tab);
@@ -648,7 +628,6 @@ function updateQty(id, change) {
     let newVal = parseInt(input.value) + change;
     if (newVal < 0) newVal = 0;
     input.value = newVal;
-    calcular();
 }
 
 function addRow(type) {
@@ -709,7 +688,7 @@ function calcular() {
     
     const areaM2 = (largo * ancho) / 10000;
     const volumenL = areaM2 * (espesor / 1000);
-    const totalBase = volumenL * 1.05 * capas; // 5% desperdicio fijo
+    const totalBase = volumenL * 1.05 * capas;
 
     const resina = totalBase * (2/3);
     const catalizador = totalBase * (1/3);
@@ -722,23 +701,15 @@ function calcular() {
     document.getElementById('valCatalizador').textContent = catalizador.toFixed(3) + ' kg';
     document.getElementById('displayTotal').textContent = totalBase.toFixed(3) + ' kg';
 
-    // 2. Cálculo de Presupuesto
-    if (currentTab === 'tabPresupuesto' || currentTab === 'tabEntrega') {
+    // 2. Cálculo de Presupuesto (Solo pestaña presupuesto)
+    if (currentTab === 'tabPresupuesto') {
         let subtotal = 0;
-        
-        // Sumar productos del catálogo CAMPRE
-        productosCAMPRE.forEach(prod => {
-            const qty = parseInt(document.getElementById(`qty-${prod.id}`).value) || 0;
-            subtotal += qty * prod.precio;
-        });
-
-        // Sumar costos base de materiales calculados
         const cR = parseFloat(document.getElementById('costoResina').value) || 0;
         const cC = parseFloat(document.getElementById('costoCatalizador').value) || 0;
         const cP = parseFloat(document.getElementById('costoPigmento').value) || 0;
+        
         subtotal += (resina * cR) + (catalizador * cC);
 
-        // Sumar materiales adicionales y mano de obra
         ['materials', 'services'].forEach(type => {
             document.getElementById(type + 'List').querySelectorAll('div').forEach(row => {
                 const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
@@ -804,43 +775,21 @@ function downloadPresupuestoPDF() {
 
     doc.setTextColor(30, 75, 150);
     doc.setFontSize(14);
-    doc.text('PRODUCTOS CAMPRE SELECCIONADOS', 20, 100);
+    doc.text('RESUMEN FINANCIERO', 20, 100);
     doc.line(20, 103, 190, 103);
-    
-    let yPos = 113;
-    doc.setFontSize(10);
-    let hayProductos = false;
-    productosCAMPRE.forEach(prod => {
-        const qty = parseInt(document.getElementById(`qty-${prod.id}`).value) || 0;
-        if (qty > 0) {
-            doc.text(`${qty} x ${prod.nombre}`, 20, yPos);
-            doc.text(`$${(qty * prod.precio).toFixed(2)}`, 180, yPos, {align: 'right'});
-            yPos += 8;
-            hayProductos = true;
-        }
-    });
-    if (!hayProductos) {
-        doc.text('Ningún producto del catálogo seleccionado.', 20, yPos);
-        yPos += 8;
-    }
-
-    doc.setTextColor(30, 75, 150);
-    doc.setFontSize(14);
-    doc.text('RESUMEN FINANCIERO', 20, yPos + 10);
-    doc.line(20, yPos + 13, 190, yPos + 13);
     doc.setFontSize(11);
     doc.setTextColor(50);
-    doc.text(`Subtotal: ${document.getElementById('subtotalDisplay').textContent}`, 20, yPos + 23);
-    doc.text(`Impuestos: ${document.getElementById('displayImpuestos').textContent}`, 20, yPos + 31);
-    doc.text(`Descuento: ${document.getElementById('displayDescuento').textContent}`, 20, yPos + 39);
+    doc.text(`Subtotal: ${document.getElementById('subtotalDisplay').textContent}`, 20, 115);
+    doc.text(`Impuestos: ${document.getElementById('displayImpuestos').textContent}`, 20, 125);
+    doc.text(`Descuento: ${document.getElementById('displayDescuento').textContent}`, 20, 135);
 
     doc.setFillColor(140, 182, 78);
-    doc.rect(20, yPos + 50, 170, 25, 'F');
+    doc.rect(20, 150, 170, 30, 'F');
     doc.setTextColor(255);
     doc.setFontSize(14);
-    doc.text('TOTAL:', 30, yPos + 65);
+    doc.text('TOTAL:', 30, 168);
     doc.setFontSize(20);
-    doc.text(total, 180, yPos + 67, {align:'right'});
+    doc.text(total, 180, 170, {align:'right'});
 
     doc.setTextColor(100);
     doc.setFontSize(9);
@@ -856,6 +805,7 @@ function downloadPresupuestoPDF() {
     }
 
     doc.save(`Presupuesto_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+    closeModal('entregaModal');
 }
 
 function enviarWhatsApp() {
@@ -866,16 +816,11 @@ function enviarWhatsApp() {
     const saldo = document.getElementById('displaySaldo').textContent;
     const area = document.getElementById('valArea').textContent;
 
-    let productosTxt = '';
-    productosCAMPRE.forEach(prod => {
-        const qty = parseInt(document.getElementById(`qty-${prod.id}`).value) || 0;
-        if (qty > 0) productosTxt += `- ${qty}x ${prod.nombre}%0A`;
-    });
-
-    const msg = `*PRESUPUESTO CAMPRE*%0A%0A*Cliente:* ${name}%0A*Área del proyecto:* ${area}%0A%0A*Productos CAMPRE:*%0A${productosTxt || 'Ninguno seleccionado'}%0A*TOTAL:* ${total}%0A*Anticipo:* ${antic}%0A*Saldo:* ${saldo}%0A%0A_Validez: ${document.getElementById('validez').value} días_`;
+    const msg = `*PRESUPUESTO CAMPRE*%0A%0A*Cliente:* ${name}%0A*Área del proyecto:* ${area}%0A%0A*TOTAL:* ${total}%0A*Anticipo:* ${antic}%0A*Saldo:* ${saldo}%0A%0A_Validez: ${document.getElementById('validez').value} días_`;
 
     const url = phone ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${msg}` : `https://wa.me/?text=${msg}`;
     window.open(url, '_blank');
+    closeModal('entregaModal');
 }
 
 function downloadCoursePDF() {
