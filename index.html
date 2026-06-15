@@ -84,7 +84,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 <!-- TABS PRINCIPALES -->
 <div class="flex border-b border-slate-200 bg-slate-50">
 <button onclick="switchTab('tabTecnico')" id="btnTabTecnico" class="tab-btn active flex-1 py-4 font-bold text-sm">CALCULO TECNICO</button>
-<button onclick="switchTab('tabPresupuesto')" id="btnTabPresupuesto" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">CATALOGO Y PRESUPUESTO</button>
+<button onclick="switchTab('tabPresupuesto')" id="btnTabPresupuesto" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">PRESUPUESTO</button>
 <button onclick="switchTab('tabEntrega')" id="btnTabEntrega" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500">ENTREGA</button>
 </div>
 
@@ -92,9 +92,11 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 
 <!-- ============ TAB 1: CÁLCULO TÉCNICO ============ -->
 <div id="tabTecnico" class="tab-content">
+
+<!-- DIMENSIONES -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 <div class="space-y-4">
-<h2 class="text-lg font-bold text-campre-blue border-b-2 border-campre-green pb-2">Dimensiones del Proyecto</h2>
+<h2 class="text-lg font-bold text-campre-blue border-b-2 border-campre-green pb-2">Dimensiones</h2>
 <div class="grid grid-cols-2 gap-3">
 <div>
 <label class="block text-sm font-semibold mb-1">Largo (cm)</label>
@@ -130,7 +132,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 <span id="valVolumen" class="font-bold text-campre-blue">0.00 L</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-slate-200">
-<span class="font-medium text-sm" id="labelComponente1">Resina (A):</span>
+<span class="font-medium text-sm" id="labelComponente1">Resina Epoxi (A):</span>
 <span id="valResina" class="font-bold text-campre-blue">0.00 kg</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-slate-200">
@@ -146,31 +148,74 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 </div>
 </div>
 
-<!-- ============ TAB 2: CATALOGO Y PRESUPUESTO ============ -->
+<!-- ============ TAB 2: PRESUPUESTO ============ -->
 <div id="tabPresupuesto" class="tab-content hidden">
 
-<!-- CATALOGO INTERACTIVO CAMPRE -->
-<div class="mb-8">
-<div class="flex items-center gap-2 mb-4">
-<span class="priority-badge priority-high">VENTAS DIRECTAS</span>
-<h2 class="text-lg font-bold text-campre-blue">Catálogo de Productos CAMPRE</h2>
+<!-- VENTAS DE PRODUCTOS CAMPRE (CATÁLOGO INTERACTIVO) -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-high">CATÁLOGO</span>
+<h2 class="text-lg font-bold text-campre-blue">Ventas de Productos CAMPRE</h2>
 </div>
-<p class="text-sm text-slate-600 mb-4">Seleccione la cantidad de productos que desea incluir en su presupuesto. Los precios son suministrados directamente por CAMPRE.</p>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="catalogoGrid">
-<!-- Los productos se generan dinámicamente con JavaScript -->
+<p class="text-sm text-slate-600 mb-4">Seleccione la cantidad de productos que desea incluir. Esta información es suministrada directamente por CAMPRE como proveedor.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="catalogoCAMPRE">
+<!-- Se genera dinámicamente con JavaScript -->
+</div>
+</div>
+
+<!-- COSTOS BASE -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-high">ALTA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Costos Base de Materiales</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div class="param-card bg-white p-4 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Costo Resina A ($/kg)</label>
+<input type="number" id="costoResina" value="20" class="w-full p-2 border rounded-lg" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-4 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Costo Catalizador B ($/kg)</label>
+<input type="number" id="costoCatalizador" value="40" class="w-full p-2 border rounded-lg" oninput="calcular()">
+</div>
+<div class="param-card bg-white p-4 rounded-xl border border-slate-200">
+<label class="text-xs font-bold text-slate-500 uppercase block mb-1">Costo Pigmento ($/kg)</label>
+<input type="number" id="costoPigmento" value="30" class="w-full p-2 border rounded-lg" oninput="calcular()">
+</div>
+</div>
+</div>
+
+<!-- MATERIALES ADICIONALES -->
+<div class="mb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="priority-badge priority-med">MEDIA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Materiales Adicionales</h2>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<div class="flex justify-between items-center mb-3">
+<span class="text-sm font-semibold">Insumos complementarios</span>
+<div class="flex gap-2">
+<button onclick="addExampleMaterials()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded text-xs font-bold">+ Ejemplos</button>
+<button onclick="addRow('materials')" class="bg-campre-green text-white px-3 py-1 rounded text-xs font-bold">+ Agregar</button>
+</div>
+</div>
+<div id="materialsList" class="space-y-2"></div>
 </div>
 </div>
 
 <!-- MANO DE OBRA -->
 <div class="mb-6">
 <div class="flex items-center gap-2 mb-3">
-<span class="priority-badge priority-med">SERVICIOS</span>
-<h2 class="text-lg font-bold text-campre-blue">Mano de Obra y Servicios</h2>
+<span class="priority-badge priority-med">MEDIA PRIORIDAD</span>
+<h2 class="text-lg font-bold text-campre-blue">Mano de Obra</h2>
 </div>
 <div class="bg-white p-4 rounded-xl border border-slate-200">
 <div class="flex justify-between items-center mb-3">
-<span class="text-sm font-semibold">Agregar servicios adicionales</span>
-<button onclick="addRow('services')" class="bg-campre-green text-white px-3 py-1 rounded text-xs font-bold">+ Agregar Servicio</button>
+<span class="text-sm font-semibold">Servicios y trabajos</span>
+<div class="flex gap-2">
+<button onclick="addExampleServices()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded text-xs font-bold">+ Ejemplos</button>
+<button onclick="addRow('services')" class="bg-campre-green text-white px-3 py-1 rounded text-xs font-bold">+ Agregar</button>
+</div>
 </div>
 <div id="servicesList" class="space-y-2"></div>
 </div>
@@ -179,14 +224,14 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 <!-- PARÁMETROS FINANCIEROS -->
 <div class="mb-6">
 <button onclick="toggleCollapsible('colFinancieros')" class="w-full flex justify-between items-center bg-slate-100 p-3 rounded-xl hover:bg-slate-200 transition">
-<span class="font-bold text-campre-blue text-sm flex items-center gap-2"><span class="priority-badge priority-med">CONFIGURACION</span> Parámetros Financieros</span>
+<span class="font-bold text-campre-blue text-sm flex items-center gap-2"><span class="priority-badge priority-med">MEDIA</span> Parámetros Financieros</span>
 <span id="arrowColFinancieros" class="text-slate-400">▼</span>
 </button>
 <div id="colFinancieros" class="collapsible-content">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
 <div class="param-card bg-white p-3 rounded-xl border border-slate-200">
 <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Margen Ganancia (%)</label>
-<input type="number" id="margenGanancia" value="0" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
+<input type="number" id="margenGanancia" value="30" class="w-full p-2 border rounded-lg text-sm" oninput="calcular()">
 </div>
 <div class="param-card bg-white p-3 rounded-xl border border-slate-200">
 <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Impuestos (%)</label>
@@ -222,7 +267,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 
 <!-- TOTAL PRESUPUESTO -->
 <div class="bg-gradient-to-br from-campre-blue to-blue-900 p-6 rounded-2xl text-white text-center shadow-xl">
-<p class="text-xs uppercase tracking-widest opacity-70">Subtotal Productos y Servicios</p>
+<p class="text-xs uppercase tracking-widest opacity-70">Subtotal</p>
 <div id="subtotalDisplay" class="text-2xl font-bold">$0.00</div>
 <div class="grid grid-cols-3 gap-2 my-4 text-xs">
 <div class="bg-white/10 p-2 rounded"><span class="opacity-70">Ganancia:</span><br><span id="displayGanancia" class="font-bold">$0</span></div>
@@ -294,15 +339,23 @@ Enviar por WhatsApp
 <div class="space-y-5 text-slate-700 text-sm">
 <section>
 <h3 class="font-bold text-campre-blue text-base">1. Cálculo Técnico</h3>
-<p>Ingresa las dimensiones (largo, ancho, espesor y número de capas). El sistema calculará automáticamente los kilogramos exactos de resina y catalizador necesarios.</p>
+<p>Define las dimensiones del proyecto. Ingresa largo, ancho, espesor y número de capas para obtener el cálculo exacto de materiales con un 5% de margen de desperdicio.</p>
 </section>
 <section>
-<h3 class="font-bold text-campre-blue text-base">2. Catálogo y Presupuesto</h3>
-<p>Selecciona directamente los productos CAMPRE que necesitas del catálogo interactivo. Agrega mano de obra si es requerido y ajusta los parámetros financieros (impuestos, descuentos, anticipo).</p>
+<h3 class="font-bold text-campre-blue text-base">2. Presupuesto</h3>
+<p>Selecciona productos del catálogo interactivo de CAMPRE, asigna costos a materiales adicionales y mano de obra. Configura margen de ganancia, impuestos, descuentos y anticipo.</p>
 </section>
 <section>
 <h3 class="font-bold text-campre-blue text-base">3. Entrega</h3>
 <p>Completa los datos del cliente y contratista. Descarga un PDF profesional o envía el resumen directamente por WhatsApp.</p>
+</section>
+<section class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+<h3 class="font-bold text-campre-blue text-base">Consejos Pro</h3>
+<ul class="list-disc ml-4 space-y-1 mt-2">
+<li>Temperatura ideal de aplicación: 20-30°C</li>
+<li>Humedad ideal: 40-60%</li>
+<li>Proporción estándar Epoxi: 2:1 (Resina:Catalizador)</li>
+</ul>
 </section>
 </div>
 </div>
@@ -315,12 +368,15 @@ Enviar por WhatsApp
 <h2 class="text-2xl font-bold text-campre-blue">CURSO COMPLETO CAMPRE</h2>
 <button onclick="closeModal('courseModal')" class="text-slate-400 font-bold text-xl">X</button>
 </div>
+
 <div class="space-y-6 text-slate-700">
+
 <div class="course-section">
 <h3>I. Curso de Resina Epoxi de Alto Tránsito</h3>
 <p><strong>Objetivo:</strong> Abordar técnicas para el manejo y aplicación de porcelanato líquido en diferentes superficies, incluyendo pisos 3D, garantizando seguridad y correcta aplicación.</p>
 <p><strong>Red de apoyo:</strong> Se invita a participar en grupos de debate y mantener contacto con el capacitador.</p>
 </div>
+
 <div class="course-section">
 <h3>II. Resina Epoxi: Especificaciones Técnicas</h3>
 <p><strong>Definición:</strong> Polímero que requiere un agente catalizador para endurecer.</p>
@@ -331,81 +387,183 @@ Enviar por WhatsApp
 </ul>
 <h4>Propiedades:</h4>
 <p>Alta resistencia química, facilidad de aplicación, gran capacidad de humectación, flexibilidad, adherencia óptima, limpieza sencilla, textura homogénea.</p>
+<h4>Tiempos y características:</h4>
+<ul>
+<li>Secado superior al resto: 8 horas aproximadamente.</li>
+<li>No desprende olor durante la aplicación.</li>
+<li>Presenta muy poca o nula contracción al secar.</li>
+</ul>
 <h4>Normas de seguridad:</h4>
 <ul>
 <li>Almacenar en lugar seco y fresco (entre 18°C y 30°C).</li>
-<li>Prohibido fumar al trabajar. No exponer a fuentes de calor o fuego.</li>
+<li>Prohibido fumar al trabajar.</li>
+<li>No exponer a fuentes de calor o fuego.</li>
 <li>Evitar contacto con la piel, especialmente tras mezclar con el catalizador.</li>
-<li>Ventilación adecuada. Lavado de manos posterior al uso. No desechar en el fuego.</li>
+<li>Ventilación adecuada.</li>
+<li>Lavado de manos posterior al uso.</li>
+<li>No desechar en el fuego.</li>
 </ul>
 </div>
+
 <div class="course-section">
 <h3>III. Recomendaciones de Trabajo (Resina Epoxi)</h3>
 <ul>
 <li><strong>Proporción:</strong> 2:1 (por cada parte de catalizador, dos partes de resina).</li>
 <li><strong>Medición:</strong> Usar balanza para precisión.</li>
 <li><strong>Mezclado:</strong> Realizar en envases limpios, mezclar intensa y vigorosamente durante 2 a 3 minutos, asegurando integrar paredes y bordes del envase para evitar vetas.</li>
-<li><strong>Eliminación de burbujas:</strong> Tras aplicar, rociar con alcohol de más de 95% de pureza o aplicar calor (pistola de calor/soplete).</li>
+<li><strong>Eliminación de burbujas:</strong> Tras aplicar (brocha o espátula), rociar con alcohol de más de 95% de pureza o aplicar calor (pistola de calor/soplete).</li>
 </ul>
 <h4>Tiempos de curado (referenciales):</h4>
 <ul>
 <li><strong>0 - 40 min:</strong> Estado líquido y autonivelante.</li>
-<li><strong>40 min - 2 hrs:</strong> Pierde fluidez, condición autonivelante disminuye.</li>
-<li><strong>2 - 4 hrs:</strong> Muy viscoso; sensible al polvo, insectos o partículas.</li>
-<li><strong>6 - 24 hrs:</strong> No pegajoso al tacto, pero puede marcarse ante presión.</li>
+<li><strong>40 min - 2 hrs:</strong> Pierde fluidez, condición autonivelante disminuye; manejable pero sensible al calor.</li>
+<li><strong>2 - 4 hrs:</strong> Muy viscoso; sigue pegajoso, sensible al polvo, insectos o partículas.</li>
+<li><strong>6 - 24 hrs:</strong> No pegajoso al tacto, pero puede marcarse o abollarse ante presión; riesgo de manchas.</li>
 <li><strong>24 - 48 hrs:</strong> Apta para tránsito ligero.</li>
 <li><strong>48 hrs+:</strong> Transitable, pero no apta para peso excesivo ni lijado.</li>
 </ul>
 </div>
+
 <div class="course-section">
 <h3>IV. Aplicaciones y Pigmentos</h3>
-<p><strong>Aplicación principal:</strong> Revestimiento de grandes suelos continuos.</p>
+<p><strong>Aplicación principal:</strong> Revestimiento de grandes suelos continuos (cubre juntas, evita hongos/bacterias, aporta brillo y nivelación).</p>
+<p><strong>Usos adicionales:</strong> Mesas, mesadas, bisutería, inclusión de objetos/luces.</p>
 <h4>Pigmentos:</h4>
 <ul>
-<li><strong>Tipos:</strong> Inorgánicos, colorantes, perlados, nacarados, translúcidos, fosforescentes, opacos.</li>
+<li><strong>Tipos:</strong> Inorgánicos (óxido de titanio, negro de humo, cromatos), colorantes, perlados, nacarados, translúcidos, fosforescentes, opacos.</li>
+<li><strong>Presentación:</strong> Pasta, líquido, polvo.</li>
 <li><strong>Dosificación:</strong> 5% del material total.</li>
+<li><strong>Aplicación:</strong> Añadir durante el proceso de remoción hasta obtener la tonalidad deseada.</li>
 </ul>
 </div>
+
 <div class="course-section">
 <h3>V. Guía de Aplicación en Pisos</h3>
-<p><strong>Preparación (Enrazado):</strong> Reparar ranuras, grietas y juntas. Lijar y limpiar el polvo tras secar.</p>
+<p><strong>Preparación (Enrazado):</strong> Reparar ranuras, grietas y juntas. Si son pequeñas, usar resina/pintura epoxi con carga inerte (carbonato de calcio, talco, sílice). Si son grandes, usar cemento. Lijar y limpiar el polvo tras secar.</p>
 <p><strong>Preparación de superficies:</strong> Limpiar grasas. Usar desengrasante industrial o mezcla de ácido muriático (1 parte de ácido por 4 de agua).</p>
-<p><strong>Sellado/Imprimación:</strong> Aplicar Pintura Epoxi con rodillo de pelo corto. Secar por 8 hrs aprox.</p>
+<p><strong>Sellado/Imprimación:</strong> Aplicar Pintura Epoxi con rodillo de pelo corto (evitar residuos). Secar por 8 hrs aprox.</p>
+<p><strong>Inclusiones 3D/Vinilos:</strong> Deben fijarse firmemente al piso sellado antes del vaciado para evitar desplazamientos.</p>
+<h4>Aplicación de Resina Epoxi (Paso 4):</h4>
+<ul>
+<li><strong>Cálculo:</strong> Largo x Ancho = Metros cuadrados.</li>
+<li><strong>Consumo:</strong> 1 litro (mezcla total) por m² para 1mm de espesor.</li>
+<li><strong>Mezcla:</strong> Producto A (pigmentado) + Producto B (catalizador), agitar vigorosamente 2-3 minutos.</li>
+<li><strong>Extendido:</strong> Secador dentado o espátula dentada.</li>
+<li><strong>Acabado:</strong> Alcohol isopropílico (>95%), pistola de calor o soplete para burbujas.</li>
+</ul>
 </div>
+
 <div class="course-section">
 <h3>VI. Aplicación en Madera</h3>
 <ol>
-<li>Limpieza: Superficie libre de polvo.</li>
-<li>Sellado: Barnizar/curar la madera para sellar poros.</li>
-<li>Base: Nivelar la base de trabajo; usar encintado o cera.</li>
-<li>Encofrado: Sellado de bordes con silicona o tirro.</li>
-<li>Desmolde: Aplicar desmoldante en todo el encofrado. Usar prensas para evitar fugas.</li>
-<li>Vertido: Verter resina y aplicar calor para burbujas. Retirar una vez seco.</li>
+<li><strong>Limpieza:</strong> Superficie libre de polvo.</li>
+<li><strong>Sellado:</strong> Barnizar/curar la madera para sellar poros.</li>
+<li><strong>Base:</strong> Nivelar la base de trabajo; usar encintado o cera.</li>
+<li><strong>Encofrado:</strong> Sellado de bordes con silicona o tirro.</li>
+<li><strong>Desmolde:</strong> Aplicar desmoldante en todo el encofrado.</li>
+<li><strong>Sujeción:</strong> Usar prensas para evitar fugas.</li>
+<li><strong>Cálculo:</strong> Determinar cantidad necesaria.</li>
+<li><strong>Vertido:</strong> Verter resina y aplicar calor para burbujas.</li>
+<li><strong>Desmolde:</strong> Retirar una vez seco.</li>
 </ol>
 </div>
+
 <div class="course-section">
 <h3>VII. Mesas de Cemento/Concreto</h3>
-<p>Proceso similar a pisos. <strong>Bordes:</strong> Usar cinta/tirro si el vaciado es de 1mm. Para bordes verticales, aplicar capas muy finas con pincel para evitar el "descolgamiento".</p>
+<p>Proceso similar a pisos.</p>
+<p><strong>Bordes:</strong> Usar cinta/tirro si el vaciado es de 1mm. Para bordes verticales, aplicar capas muy finas con pincel para evitar el "descolgamiento".</p>
 </div>
+
 <div class="course-section">
 <h3>VIII. Consejos y Advertencias Finales</h3>
 <ul>
 <li><strong>Preparación:</strong> Representa más de la mitad del éxito del trabajo.</li>
-<li><strong>Contaminación:</strong> Tras el vaciado, limitar la circulación de aire y la presencia de personas.</li>
+<li><strong>Contaminación:</strong> Tras el vaciado, limitar la circulación de aire y la presencia de personas para evitar caída de partículas.</li>
 <li><strong>Equipo de protección:</strong> Botas, guantes de goma, gafas protectoras, camisa de manga larga, pantalones largos.</li>
+<li><strong>Asistencia:</strong> Leer etiquetas de seguridad y contactar al fabricante ante dudas.</li>
 </ul>
 </div>
+
 <div class="course-section">
 <h3>IX. Resina Poliéster</h3>
 <ul>
-<li><strong>Estado:</strong> Líquida a temperatura ambiente, se vuelve sólida al usar un catalizador.</li>
-<li><strong>Caducidad:</strong> Aproximadamente 6 meses. Evitar humedad, alta temperatura y luz.</li>
-<li><strong>Seguridad:</strong> Punto de inflamación de 33°C, guardar lejos de focos inflamables.</li>
-<li><strong>Catalizador:</strong> Entre 1% y 2% a temperaturas cercanas a los 30°C.</li>
+<li><strong>Estado:</strong> Líquida a temperatura ambiente, se vuelve sólida al usar un catalizador (pre-aceleradas o aceleradas).</li>
+<li><strong>Caducidad:</strong> Aproximadamente 6 meses.</li>
+<li><strong>Almacenamiento:</strong> Evitar humedad, alta temperatura y luz.</li>
+<li><strong>Seguridad:</strong> Tiene punto de ebullición inferior a 60°C y su disolvente (estireno) tiene un punto de inflamación de 33°C, por lo que debe guardarse lejos de focos inflamables.</li>
+<li><strong>Catalizador:</strong> La cantidad depende de la temperatura; se recomienda entre 1% y 2% a temperaturas cercanas a los 30°C.</li>
+<li><strong>Condiciones ambientales:</strong> Humedad ideal entre 40% y 54%.</li>
+<li><strong>Molde:</strong> Se debe tener en cuenta que la reacción exotérmica puede deformar o romper el molde.</li>
 </ul>
 </div>
+
 <div class="course-section">
-<h3>X. Resumen de Tiempos de Curado</h3>
+<h3>X. Aplicación en Madera (Resina Poliéster)</h3>
+<ol>
+<li><strong>Paso 1:</strong> Limpiar la superficie de polvo.</li>
+<li><strong>Paso 2:</strong> Barnizar o curar para sellar poros y evitar absorción.</li>
+<li><strong>Paso 3:</strong> Usar base nivelada, encintar o encerar.</li>
+<li><strong>Paso 4:</strong> Armar encofrado y sellar bordes con silicona o tirro.</li>
+<li><strong>Paso 5:</strong> Aplicar desmoldante en toda la superficie del encofrado.</li>
+<li><strong>Paso 6:</strong> Sujetar maderas al cajón con prensas.</li>
+<li><strong>Paso 7:</strong> Calcular cantidad de resina.</li>
+<li><strong>Paso 8:</strong> Verter resina y usar calor para eliminar burbujas.</li>
+<li><strong>Paso 9:</strong> Desmoldar una vez seca.</li>
+</ol>
+</div>
+
+<div class="course-section">
+<h3>XI. Consejos y Advertencias (Resina Poliéster)</h3>
+<p><strong>Consejos:</strong> La preparación es más de la mitad del trabajo. Limitar la circulación de aire tras el vaciado reduce el riesgo de contaminación por partículas.</p>
+<p><strong>Advertencias:</strong> Usar equipo de protección (botas, guantes, gafas, mangas largas). Leer siempre la información técnica y de seguridad de la etiqueta.</p>
+<p><strong>Cemento:</strong> Para mesas de cemento, si se busca un borde vertical, aplicar capas muy finas con pincel para evitar que el producto se chorree o descuelgue.</p>
+</div>
+
+<div class="course-section">
+<h3>XII. Aplicación de Resina Epoxi (Pisos) - Resumen</h3>
+<ul>
+<li><strong>Cálculo:</strong> 1 litro de resina con su catalizador por metro cuadrado para una capa de 1mm.</li>
+<li><strong>Mezclado:</strong> 2 a 3 minutos vigorosamente a velocidad moderada.</li>
+<li><strong>Aplicación:</strong> Usar espátula o secador dentado; usar alcohol isopropílico (>95%), soplete o pistola de calor para burbujas.</li>
+<li><strong>Tiempos:</strong> "Blanda" las primeras 24 horas; se puede caminar sobre ella tras 24 horas y colocar muebles tras 48 horas.</li>
+</ul>
+</div>
+
+<div class="course-section">
+<h3>XIII. Preparación y Sellado</h3>
+<ul>
+<li><strong>Desengrasado:</strong> Usar desengrasante industrial o una taza de ácido muriático mezclada con 4 partes de agua.</li>
+<li><strong>Imprimación:</strong> Usar Pintura Epoxi con rodillo de pelo corto para asegurar adherencia; dejar secar 8 horas.</li>
+<li><strong>Fijación:</strong> Elementos como vinilos 3D deben fijarse con materiales que no contengan grasas para evitar desprendimientos.</li>
+</ul>
+</div>
+
+<div class="course-section">
+<h3>XIV. Reparación de Pisos</h3>
+<ul>
+<li><strong>Enrazado:</strong> Tapar ranuras, grietas o juntas.</li>
+<li><strong>Mezcla de reparación:</strong> Resina o pintura epoxi con carga inerte (carbonato de calcio, talco o sílice) para lograr viscosidad adecuada.</li>
+</ul>
+</div>
+
+<div class="course-section">
+<h3>XV. Pigmentos y Aplicaciones</h3>
+<ul>
+<li><strong>Pigmentos:</strong> Inorgánicos, perlados, nacarados, etc., dosificados al 5% del material total.</li>
+<li><strong>Usos:</strong> Pisos continuos, mesas, mesadas y bisutería.</li>
+</ul>
+</div>
+
+<div class="course-section">
+<h3>XVI. Curso y Seguridad</h3>
+<ul>
+<li><strong>Resistencia:</strong> Hasta 70°C (ocasional) y 45°C (prolongada); soporta 65 N de fuerza por m².</li>
+<li><strong>Seguridad:</strong> Almacenar entre 18°C y 30°C, prohibido fumar y prohibido tirar al fuego.</li>
+</ul>
+</div>
+
+<div class="course-section">
+<h3>XVII. Resumen de Tiempos de Curado</h3>
 <ul>
 <li><strong>0-40 min:</strong> Líquido, autonivelante.</li>
 <li><strong>40 min-2 hrs:</strong> Pierde fluidez, no autonivelante.</li>
@@ -415,6 +573,7 @@ Enviar por WhatsApp
 <li><strong>48 hrs+:</strong> Terminado (no aplicar presión excesiva ni lijar).</li>
 </ul>
 </div>
+
 <div class="grid grid-cols-2 gap-3 pt-4">
 <button onclick="downloadCoursePDF()" class="bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600">Descargar PDF</button>
 <button onclick="downloadCourseWord()" class="bg-blue-500 text-white py-3 rounded-xl font-bold hover:bg-blue-600">Descargar Word</button>
@@ -427,7 +586,7 @@ Enviar por WhatsApp
 let currentTab = 'tabTecnico';
 
 // ==========================================
-// DATOS DEL CATALOGO CAMPRE (EDITAR AQUI)
+// CATÁLOGO INTERACTIVO CAMPRE
 // ==========================================
 const productosCAMPRE = [
     { id: 1, nombre: "Resina Epoxi A (Kit 3kg)", descripcion: "Resina de alta resistencia, acabado brillante. Ideal para pisos y mesas.", precio: 60.00, unidad: "Kit" },
@@ -459,9 +618,8 @@ function toggleCollapsible(id) {
     arrow.textContent = el.classList.contains('open') ? '▲' : '▼';
 }
 
-// Renderizar Catálogo
 function renderizarCatalogo() {
-    const grid = document.getElementById('catalogoGrid');
+    const grid = document.getElementById('catalogoCAMPRE');
     grid.innerHTML = '';
     productosCAMPRE.forEach(prod => {
         const card = document.createElement('div');
@@ -497,11 +655,49 @@ function addRow(type) {
     const list = document.getElementById(type + 'List');
     const row = document.createElement('div');
     row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded items-center';
-    row.innerHTML = `<input type="text" placeholder="Descripción del servicio" class="col-span-6 p-2 border rounded text-sm">
+    row.innerHTML = `<input type="text" placeholder="Concepto" class="col-span-6 p-2 border rounded text-sm">
     <input type="number" placeholder="Cant" class="col-span-2 p-2 border rounded qty text-sm" oninput="calcular()">
     <input type="number" placeholder="$" class="col-span-3 p-2 border rounded price text-sm" oninput="calcular()">
-    <button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold text-center">X</button>`;
+    <button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold">X</button>`;
     list.appendChild(row);
+}
+
+function addExampleMaterials() {
+    const examples = [
+        {name:'Sellador/Imprimación', qty:1, price:25},
+        {name:'Rodillo de púas', qty:1, price:15},
+        {name:'Guantes y EPP', qty:1, price:10},
+        {name:'Lija industrial', qty:2, price:5}
+    ];
+    examples.forEach(ex => {
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded items-center';
+        row.innerHTML = `<input type="text" value="${ex.name}" class="col-span-6 p-2 border rounded text-sm">
+        <input type="number" value="${ex.qty}" class="col-span-2 p-2 border rounded qty text-sm" oninput="calcular()">
+        <input type="number" value="${ex.price}" class="col-span-3 p-2 border rounded price text-sm" oninput="calcular()">
+        <button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold">X</button>`;
+        document.getElementById('materialsList').appendChild(row);
+    });
+    calcular();
+}
+
+function addExampleServices() {
+    const examples = [
+        {name:'Preparación de superficie', qty:1, price:50},
+        {name:'Aplicación de imprimación', qty:1, price:30},
+        {name:'Aplicación de resina', qty:1, price:80},
+        {name:'Lijado entre capas', qty:1, price:20}
+    ];
+    examples.forEach(ex => {
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-12 gap-2 p-2 bg-slate-50 rounded items-center';
+        row.innerHTML = `<input type="text" value="${ex.name}" class="col-span-6 p-2 border rounded text-sm">
+        <input type="number" value="${ex.qty}" class="col-span-2 p-2 border rounded qty text-sm" oninput="calcular()">
+        <input type="number" value="${ex.price}" class="col-span-3 p-2 border rounded price text-sm" oninput="calcular()">
+        <button onclick="this.parentElement.remove(); calcular();" class="col-span-1 text-red-500 font-bold">X</button>`;
+        document.getElementById('servicesList').appendChild(row);
+    });
+    calcular();
 }
 
 function calcular() {
@@ -513,7 +709,7 @@ function calcular() {
     
     const areaM2 = (largo * ancho) / 10000;
     const volumenL = areaM2 * (espesor / 1000);
-    const totalBase = volumenL * 1.05 * capas; // 5% desperdicio por defecto
+    const totalBase = volumenL * 1.05 * capas; // 5% desperdicio fijo
 
     const resina = totalBase * (2/3);
     const catalizador = totalBase * (1/3);
@@ -526,21 +722,29 @@ function calcular() {
     document.getElementById('valCatalizador').textContent = catalizador.toFixed(3) + ' kg';
     document.getElementById('displayTotal').textContent = totalBase.toFixed(3) + ' kg';
 
-    // 2. Cálculo de Presupuesto (Catálogo + Servicios)
+    // 2. Cálculo de Presupuesto
     if (currentTab === 'tabPresupuesto' || currentTab === 'tabEntrega') {
         let subtotal = 0;
         
-        // Sumar productos del catálogo
+        // Sumar productos del catálogo CAMPRE
         productosCAMPRE.forEach(prod => {
             const qty = parseInt(document.getElementById(`qty-${prod.id}`).value) || 0;
             subtotal += qty * prod.precio;
         });
 
-        // Sumar servicios manuales
-        document.getElementById('servicesList').querySelectorAll('div').forEach(row => {
-            const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
-            const price = parseFloat(row.querySelector('.price')?.value) || 0;
-            subtotal += qty * price;
+        // Sumar costos base de materiales calculados
+        const cR = parseFloat(document.getElementById('costoResina').value) || 0;
+        const cC = parseFloat(document.getElementById('costoCatalizador').value) || 0;
+        const cP = parseFloat(document.getElementById('costoPigmento').value) || 0;
+        subtotal += (resina * cR) + (catalizador * cC);
+
+        // Sumar materiales adicionales y mano de obra
+        ['materials', 'services'].forEach(type => {
+            document.getElementById(type + 'List').querySelectorAll('div').forEach(row => {
+                const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+                const price = parseFloat(row.querySelector('.price')?.value) || 0;
+                subtotal += qty * price;
+            });
         });
 
         const transporte = parseFloat(document.getElementById('transporte').value) || 0;
@@ -576,6 +780,7 @@ function downloadPresupuestoPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const clientName = document.getElementById('clientName').value || 'Cliente';
+    const clientPhone = document.getElementById('clientPhone').value || '';
     const total = document.getElementById('totalPresupuesto').textContent;
 
     doc.setFillColor(30, 75, 150);
@@ -594,50 +799,63 @@ function downloadPresupuestoPDF() {
     doc.setFontSize(11);
     doc.setTextColor(50);
     doc.text(`Cliente: ${clientName}`, 20, 68);
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es')}`, 20, 76);
+    doc.text(`Teléfono: ${clientPhone}`, 20, 76);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es')}`, 20, 84);
 
     doc.setTextColor(30, 75, 150);
     doc.setFontSize(14);
-    doc.text('PRODUCTOS CAMPRE SELECCIONADOS', 20, 95);
-    doc.line(20, 98, 190, 98);
+    doc.text('PRODUCTOS CAMPRE SELECCIONADOS', 20, 100);
+    doc.line(20, 103, 190, 103);
     
-    let yPos = 108;
+    let yPos = 113;
     doc.setFontSize(10);
+    let hayProductos = false;
     productosCAMPRE.forEach(prod => {
         const qty = parseInt(document.getElementById(`qty-${prod.id}`).value) || 0;
         if (qty > 0) {
             doc.text(`${qty} x ${prod.nombre}`, 20, yPos);
             doc.text(`$${(qty * prod.precio).toFixed(2)}`, 180, yPos, {align: 'right'});
             yPos += 8;
+            hayProductos = true;
         }
     });
-
-    if (yPos > 108) yPos += 5;
+    if (!hayProductos) {
+        doc.text('Ningún producto del catálogo seleccionado.', 20, yPos);
+        yPos += 8;
+    }
 
     doc.setTextColor(30, 75, 150);
     doc.setFontSize(14);
-    doc.text('RESUMEN FINANCIERO', 20, yPos + 5);
-    doc.line(20, yPos + 8, 190, yPos + 8);
+    doc.text('RESUMEN FINANCIERO', 20, yPos + 10);
+    doc.line(20, yPos + 13, 190, yPos + 13);
     doc.setFontSize(11);
     doc.setTextColor(50);
-    doc.text(`Subtotal: ${document.getElementById('subtotalDisplay').textContent}`, 20, yPos + 18);
-    doc.text(`Impuestos: ${document.getElementById('displayImpuestos').textContent}`, 20, yPos + 26);
-    doc.text(`Descuento: ${document.getElementById('displayDescuento').textContent}`, 20, yPos + 34);
+    doc.text(`Subtotal: ${document.getElementById('subtotalDisplay').textContent}`, 20, yPos + 23);
+    doc.text(`Impuestos: ${document.getElementById('displayImpuestos').textContent}`, 20, yPos + 31);
+    doc.text(`Descuento: ${document.getElementById('displayDescuento').textContent}`, 20, yPos + 39);
 
     doc.setFillColor(140, 182, 78);
-    doc.rect(20, yPos + 45, 170, 25, 'F');
+    doc.rect(20, yPos + 50, 170, 25, 'F');
     doc.setTextColor(255);
     doc.setFontSize(14);
-    doc.text('TOTAL:', 30, yPos + 60);
+    doc.text('TOTAL:', 30, yPos + 65);
     doc.setFontSize(20);
-    doc.text(total, 180, yPos + 62, {align:'right'});
+    doc.text(total, 180, yPos + 67, {align:'right'});
 
     doc.setTextColor(100);
     doc.setFontSize(9);
-    doc.text(`Validez: ${document.getElementById('validez').value} días | Plazo: ${document.getElementById('plazo').value} días`, 105, 260, {align:'center'});
-    doc.text(`Anticipo: ${document.getElementById('displayAnticipo').textContent} | Saldo: ${document.getElementById('displaySaldo').textContent}`, 105, 267, {align:'center'});
+    doc.text(`Validez: ${document.getElementById('validez').value} días | Plazo: ${document.getElementById('plazo').value} días | Garantía: ${document.getElementById('garantia').value} meses`, 105, 245, {align:'center'});
+    doc.text(`Anticipo: ${document.getElementById('displayAnticipo').textContent} | Saldo: ${document.getElementById('displaySaldo').textContent}`, 105, 252, {align:'center'});
 
-    doc.save(`Presupuesto_${clientName.replace(/\s+/g, '_')}.pdf`);
+    const notas = document.getElementById('notas').value;
+    if (notas) {
+        doc.setFontSize(9);
+        doc.setTextColor(80);
+        doc.text('Observaciones:', 20, 265);
+        doc.text(notas.substring(0, 100), 20, 272);
+    }
+
+    doc.save(`Presupuesto_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
 }
 
 function enviarWhatsApp() {
@@ -646,6 +864,7 @@ function enviarWhatsApp() {
     const total = document.getElementById('totalPresupuesto').textContent;
     const antic = document.getElementById('displayAnticipo').textContent;
     const saldo = document.getElementById('displaySaldo').textContent;
+    const area = document.getElementById('valArea').textContent;
 
     let productosTxt = '';
     productosCAMPRE.forEach(prod => {
@@ -653,7 +872,7 @@ function enviarWhatsApp() {
         if (qty > 0) productosTxt += `- ${qty}x ${prod.nombre}%0A`;
     });
 
-    const msg = `*PRESUPUESTO CAMPRE*%0A%0A*Cliente:* ${name}%0A%0A*Productos:*%0A${productosTxt}%0A*TOTAL:* ${total}%0A*Anticipo:* ${antic}%0A*Saldo:* ${saldo}%0A%0A_Validez: ${document.getElementById('validez').value} días_`;
+    const msg = `*PRESUPUESTO CAMPRE*%0A%0A*Cliente:* ${name}%0A*Área del proyecto:* ${area}%0A%0A*Productos CAMPRE:*%0A${productosTxt || 'Ninguno seleccionado'}%0A*TOTAL:* ${total}%0A*Anticipo:* ${antic}%0A*Saldo:* ${saldo}%0A%0A_Validez: ${document.getElementById('validez').value} días_`;
 
     const url = phone ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${msg}` : `https://wa.me/?text=${msg}`;
     window.open(url, '_blank');
@@ -676,9 +895,168 @@ function downloadCoursePDF() {
 }
 
 function downloadCourseWord() {
-    const content = `<html><head><meta charset='utf-8'><title>Curso CAMPRE</title></head>
-    <body style="font-family:Calibri"><h1 style="color:#1E4B96;text-align:center">CURSO COMPLETO CAMPRE</h1>
-    <p>Consulte la aplicación web para el contenido completo del curso técnico.</p></body></html>`;
+    const content = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'><title>Curso Completo CAMPRE</title></head>
+<body style="font-family: Calibri, sans-serif;">
+<h1 style="color: #1E4B96; text-align: center;">CURSO COMPLETO CAMPRE</h1>
+<h3 style="text-align: center; color: #666;">Domina la Resina Epóxica de Principio a Fin</h3>
+<hr style="border: 2px solid #8CB64E;">
+<h2 style="color: #1E4B96;">I. Curso de Resina Epoxi de Alto Tránsito</h2>
+<p><strong>Objetivo:</strong> Abordar técnicas para el manejo y aplicación de porcelanato líquido en diferentes superficies, incluyendo pisos 3D, garantizando seguridad y correcta aplicación.</p>
+<p><strong>Red de apoyo:</strong> Se invita a participar en grupos de debate y mantener contacto con el capacitador.</p>
+<h2 style="color: #1E4B96;">II. Resina Epoxi: Especificaciones Técnicas</h2>
+<p><strong>Definición:</strong> Polímero que requiere un agente catalizador para endurecer.</p>
+<h3>Resistencia:</h3>
+<ul>
+<li><strong>Térmica:</strong> Hasta 70°C en exposiciones ocasionales; 45°C en exposición prolongada.</li>
+<li><strong>Física:</strong> Soporta 65 N de fuerza por metro cuadrado.</li>
+</ul>
+<h3>Propiedades:</h3>
+<p>Alta resistencia química, facilidad de aplicación, gran capacidad de humectación, flexibilidad, adherencia óptima, limpieza sencilla, textura homogénea.</p>
+<h3>Tiempos y características:</h3>
+<ul>
+<li>Secado superior al resto: 8 horas aproximadamente.</li>
+<li>No desprende olor durante la aplicación.</li>
+<li>Presenta muy poca o nula contracción al secar.</li>
+</ul>
+<h3>Normas de seguridad:</h3>
+<ul>
+<li>Almacenar en lugar seco y fresco (entre 18°C y 30°C).</li>
+<li>Prohibido fumar al trabajar.</li>
+<li>No exponer a fuentes de calor o fuego.</li>
+<li>Evitar contacto con la piel, especialmente tras mezclar con el catalizador.</li>
+<li>Ventilación adecuada.</li>
+<li>Lavado de manos posterior al uso.</li>
+<li>No desechar en el fuego.</li>
+</ul>
+<h2 style="color: #1E4B96;">III. Recomendaciones de Trabajo (Resina Epoxi)</h2>
+<ul>
+<li><strong>Proporción:</strong> 2:1 (por cada parte de catalizador, dos partes de resina).</li>
+<li><strong>Medición:</strong> Usar balanza para precisión.</li>
+<li><strong>Mezclado:</strong> Realizar en envases limpios, mezclar intensa y vigorosamente durante 2 a 3 minutos, asegurando integrar paredes y bordes del envase para evitar vetas.</li>
+<li><strong>Eliminación de burbujas:</strong> Tras aplicar (brocha o espátula), rociar con alcohol de más de 95% de pureza o aplicar calor (pistola de calor/soplete).</li>
+</ul>
+<h3>Tiempos de curado (referenciales):</h3>
+<ul>
+<li><strong>0 - 40 min:</strong> Estado líquido y autonivelante.</li>
+<li><strong>40 min - 2 hrs:</strong> Pierde fluidez, condición autonivelante disminuye; manejable pero sensible al calor.</li>
+<li><strong>2 - 4 hrs:</strong> Muy viscoso; sigue pegajoso, sensible al polvo, insectos o partículas.</li>
+<li><strong>6 - 24 hrs:</strong> No pegajoso al tacto, pero puede marcarse o abollarse ante presión; riesgo de manchas.</li>
+<li><strong>24 - 48 hrs:</strong> Apta para tránsito ligero.</li>
+<li><strong>48 hrs+:</strong> Transitable, pero no apta para peso excesivo ni lijado.</li>
+</ul>
+<h2 style="color: #1E4B96;">IV. Aplicaciones y Pigmentos</h2>
+<p><strong>Aplicación principal:</strong> Revestimiento de grandes suelos continuos (cubre juntas, evita hongos/bacterias, aporta brillo y nivelación).</p>
+<p><strong>Usos adicionales:</strong> Mesas, mesadas, bisutería, inclusión de objetos/luces.</p>
+<h3>Pigmentos:</h3>
+<ul>
+<li><strong>Tipos:</strong> Inorgánicos (óxido de titanio, negro de humo, cromatos), colorantes, perlados, nacarados, translúcidos, fosforescentes, opacos.</li>
+<li><strong>Presentación:</strong> Pasta, líquido, polvo.</li>
+<li><strong>Dosificación:</strong> 5% del material total.</li>
+<li><strong>Aplicación:</strong> Añadir durante el proceso de remoción hasta obtener la tonalidad deseada.</li>
+</ul>
+<h2 style="color: #1E4B96;">V. Guía de Aplicación en Pisos</h2>
+<p><strong>Preparación (Enrazado):</strong> Reparar ranuras, grietas y juntas. Si son pequeñas, usar resina/pintura epoxi con carga inerte (carbonato de calcio, talco, sílice). Si son grandes, usar cemento. Lijar y limpiar el polvo tras secar.</p>
+<p><strong>Preparación de superficies:</strong> Limpiar grasas. Usar desengrasante industrial o mezcla de ácido muriático (1 parte de ácido por 4 de agua).</p>
+<p><strong>Sellado/Imprimación:</strong> Aplicar Pintura Epoxi con rodillo de pelo corto (evitar residuos). Secar por 8 hrs aprox.</p>
+<p><strong>Inclusiones 3D/Vinilos:</strong> Deben fijarse firmemente al piso sellado antes del vaciado para evitar desplazamientos.</p>
+<h3>Aplicación de Resina Epoxi (Paso 4):</h3>
+<ul>
+<li><strong>Cálculo:</strong> Largo x Ancho = Metros cuadrados.</li>
+<li><strong>Consumo:</strong> 1 litro (mezcla total) por m² para 1mm de espesor.</li>
+<li><strong>Mezcla:</strong> Producto A (pigmentado) + Producto B (catalizador), agitar vigorosamente 2-3 minutos.</li>
+<li><strong>Extendido:</strong> Secador dentado o espátula dentada.</li>
+<li><strong>Acabado:</strong> Alcohol isopropílico (>95%), pistola de calor o soplete para burbujas.</li>
+</ul>
+<h2 style="color: #1E4B96;">VI. Aplicación en Madera</h2>
+<ol>
+<li><strong>Limpieza:</strong> Superficie libre de polvo.</li>
+<li><strong>Sellado:</strong> Barnizar/curar la madera para sellar poros.</li>
+<li><strong>Base:</strong> Nivelar la base de trabajo; usar encintado o cera.</li>
+<li><strong>Encofrado:</strong> Sellado de bordes con silicona o tirro.</li>
+<li><strong>Desmolde:</strong> Aplicar desmoldante en todo el encofrado.</li>
+<li><strong>Sujeción:</strong> Usar prensas para evitar fugas.</li>
+<li><strong>Cálculo:</strong> Determinar cantidad necesaria.</li>
+<li><strong>Vertido:</strong> Verter resina y aplicar calor para burbujas.</li>
+<li><strong>Desmolde:</strong> Retirar una vez seco.</li>
+</ol>
+<h2 style="color: #1E4B96;">VII. Mesas de Cemento/Concreto</h2>
+<p>Proceso similar a pisos.</p>
+<p><strong>Bordes:</strong> Usar cinta/tirro si el vaciado es de 1mm. Para bordes verticales, aplicar capas muy finas con pincel para evitar el "descolgamiento".</p>
+<h2 style="color: #1E4B96;">VIII. Consejos y Advertencias Finales</h2>
+<ul>
+<li><strong>Preparación:</strong> Representa más de la mitad del éxito del trabajo.</li>
+<li><strong>Contaminación:</strong> Tras el vaciado, limitar la circulación de aire y la presencia de personas para evitar caída de partículas.</li>
+<li><strong>Equipo de protección:</strong> Botas, guantes de goma, gafas protectoras, camisa de manga larga, pantalones largos.</li>
+<li><strong>Asistencia:</strong> Leer etiquetas de seguridad y contactar al fabricante ante dudas.</li>
+</ul>
+<h2 style="color: #1E4B96;">IX. Resina Poliéster</h2>
+<ul>
+<li><strong>Estado:</strong> Líquida a temperatura ambiente, se vuelve sólida al usar un catalizador (pre-aceleradas o aceleradas).</li>
+<li><strong>Caducidad:</strong> Aproximadamente 6 meses.</li>
+<li><strong>Almacenamiento:</strong> Evitar humedad, alta temperatura y luz.</li>
+<li><strong>Seguridad:</strong> Tiene punto de ebullición inferior a 60°C y su disolvente (estireno) tiene un punto de inflamación de 33°C, por lo que debe guardarse lejos de focos inflamables.</li>
+<li><strong>Catalizador:</strong> La cantidad depende de la temperatura; se recomienda entre 1% y 2% a temperaturas cercanas a los 30°C.</li>
+<li><strong>Condiciones ambientales:</strong> Humedad ideal entre 40% y 54%.</li>
+<li><strong>Molde:</strong> Se debe tener en cuenta que la reacción exotérmica puede deformar o romper el molde.</li>
+</ul>
+<h2 style="color: #1E4B96;">X. Aplicación en Madera (Resina Poliéster)</h2>
+<ol>
+<li><strong>Paso 1:</strong> Limpiar la superficie de polvo.</li>
+<li><strong>Paso 2:</strong> Barnizar o curar para sellar poros y evitar absorción.</li>
+<li><strong>Paso 3:</strong> Usar base nivelada, encintar o encerar.</li>
+<li><strong>Paso 4:</strong> Armar encofrado y sellar bordes con silicona o tirro.</li>
+<li><strong>Paso 5:</strong> Aplicar desmoldante en toda la superficie del encofrado.</li>
+<li><strong>Paso 6:</strong> Sujetar maderas al cajón con prensas.</li>
+<li><strong>Paso 7:</strong> Calcular cantidad de resina.</li>
+<li><strong>Paso 8:</strong> Verter resina y usar calor para eliminar burbujas.</li>
+<li><strong>Paso 9:</strong> Desmoldar una vez seca.</li>
+</ol>
+<h2 style="color: #1E4B96;">XI. Consejos y Advertencias (Resina Poliéster)</h2>
+<p><strong>Consejos:</strong> La preparación es más de la mitad del trabajo. Limitar la circulación de aire tras el vaciado reduce el riesgo de contaminación por partículas.</p>
+<p><strong>Advertencias:</strong> Usar equipo de protección (botas, guantes, gafas, mangas largas). Leer siempre la información técnica y de seguridad de la etiqueta.</p>
+<p><strong>Cemento:</strong> Para mesas de cemento, si se busca un borde vertical, aplicar capas muy finas con pincel para evitar que el producto se chorree o descuelgue.</p>
+<h2 style="color: #1E4B96;">XII. Aplicación de Resina Epoxi (Pisos) - Resumen</h2>
+<ul>
+<li><strong>Cálculo:</strong> 1 litro de resina con su catalizador por metro cuadrado para una capa de 1mm.</li>
+<li><strong>Mezclado:</strong> 2 a 3 minutos vigorosamente a velocidad moderada.</li>
+<li><strong>Aplicación:</strong> Usar espátula o secador dentado; usar alcohol isopropílico (>95%), soplete o pistola de calor para burbujas.</li>
+<li><strong>Tiempos:</strong> "Blanda" las primeras 24 horas; se puede caminar sobre ella tras 24 horas y colocar muebles tras 48 horas.</li>
+</ul>
+<h2 style="color: #1E4B96;">XIII. Preparación y Sellado</h2>
+<ul>
+<li><strong>Desengrasado:</strong> Usar desengrasante industrial o una taza de ácido muriático mezclada con 4 partes de agua.</li>
+<li><strong>Imprimación:</strong> Usar Pintura Epoxi con rodillo de pelo corto para asegurar adherencia; dejar secar 8 horas.</li>
+<li><strong>Fijación:</strong> Elementos como vinilos 3D deben fijarse con materiales que no contengan grasas para evitar desprendimientos.</li>
+</ul>
+<h2 style="color: #1E4B96;">XIV. Reparación de Pisos</h2>
+<ul>
+<li><strong>Enrazado:</strong> Tapar ranuras, grietas o juntas.</li>
+<li><strong>Mezcla de reparación:</strong> Resina o pintura epoxi con carga inerte (carbonato de calcio, talco o sílice) para lograr viscosidad adecuada.</li>
+</ul>
+<h2 style="color: #1E4B96;">XV. Pigmentos y Aplicaciones</h2>
+<ul>
+<li><strong>Pigmentos:</strong> Inorgánicos, perlados, nacarados, etc., dosificados al 5% del material total.</li>
+<li><strong>Usos:</strong> Pisos continuos, mesas, mesadas y bisutería.</li>
+</ul>
+<h2 style="color: #1E4B96;">XVI. Curso y Seguridad</h2>
+<ul>
+<li><strong>Resistencia:</strong> Hasta 70°C (ocasional) y 45°C (prolongada); soporta 65 N de fuerza por m².</li>
+<li><strong>Seguridad:</strong> Almacenar entre 18°C y 30°C, prohibido fumar y prohibido tirar al fuego.</li>
+</ul>
+<h2 style="color: #1E4B96;">XVII. Resumen de Tiempos de Curado</h2>
+<ul>
+<li><strong>0-40 min:</strong> Líquido, autonivelante.</li>
+<li><strong>40 min-2 hrs:</strong> Pierde fluidez, no autonivelante.</li>
+<li><strong>2-4 hrs:</strong> Muy viscoso.</li>
+<li><strong>6-24 hrs:</strong> No pegajoso, pero propenso a marcarse.</li>
+<li><strong>24-48 hrs:</strong> Apta para tránsito ligero.</li>
+<li><strong>48 hrs+:</strong> Terminado (no aplicar presión excesiva ni lijar).</li>
+</ul>
+<hr>
+<p style="text-align: center; color: #999; font-size: 10px;">© 2026 CAMPRE · C.A. Medina Plásticos Reforzados · Material exclusivo</p>
+</body>
+</html>`;
     const blob = new Blob(['\ufeff', content], {type:'application/msword'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
