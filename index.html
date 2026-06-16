@@ -49,6 +49,10 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
     .brand-text span { font-size: 9px; }
     .brand-logo { width: 32px; height: 32px; font-size: 12px; }
 }
+.formula-box { background: #f0f9ff; border: 2px solid #1E4B96; border-radius: 12px; padding: 16px; margin: 16px 0; }
+.formula-box code { background: #1E4B96; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+.warning-box { background: #fef3c7; border-left: 4px solid #d97706; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
+.critical-box { background: #fee2e2; border-left: 4px solid #dc2626; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
 </style>
 </head>
 <body class="p-0 md:p-4">
@@ -120,29 +124,73 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #546
 
 <!-- RESULTADOS -->
 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
-<h2 class="text-lg font-bold text-campre-blue mb-4">Desglose de Materiales</h2>
+<h2 class="text-lg font-bold text-campre-blue mb-4">Desglose de Materiales (por peso)</h2>
 <div class="space-y-2">
 <div class="flex justify-between items-center py-2 border-b border-slate-200">
 <span class="font-medium text-sm">Área Total:</span>
 <span id="valArea" class="font-bold text-campre-blue">0.00 m²</span>
 </div>
-<div class="flex justify-between items-center py-2 border-b border-slate-200">
-<span class="font-medium text-sm">Volumen:</span>
-<span id="valVolumen" class="font-bold text-campre-blue">0.00 mL</span>
+<div class="flex justify-between items-center py-2 border-b border-slate-200 bg-blue-50 -mx-2 px-2 rounded">
+<span class="font-medium text-sm">Total Base (sin seguridad):</span>
+<span id="valBase" class="font-bold text-campre-blue">0 g</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-slate-200 bg-yellow-50 -mx-2 px-2 rounded">
+<span class="font-medium text-sm">Total con 5% seguridad (redondeo al alza):</span>
+<span id="valTotal" class="font-bold text-campre-blue text-lg">0 g</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-slate-200">
-<span class="font-medium text-sm" id="labelComponente1">Resina Epoxi (A):</span>
-<span id="valResina" class="font-bold text-campre-blue">0.00 mg</span>
+<span class="font-medium text-sm" id="labelComponente1">Resina Epoxi (A) - 2/3:</span>
+<span id="valResina" class="font-bold text-campre-blue">0 g</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-slate-200">
-<span class="font-medium text-sm" id="labelComponente2">Catalizador (B):</span>
-<span id="valCatalizador" class="font-bold text-campre-blue">0.00 mg</span>
+<span class="font-medium text-sm" id="labelComponente2">Catalizador (B) - 1/3:</span>
+<span id="valCatalizador" class="font-bold text-campre-blue">0 g</span>
 </div>
 <div class="flex justify-between items-center py-2 bg-campre-green/10 -mx-2 px-2 rounded">
-<span class="font-bold">TOTAL MATERIAL:</span>
-<span id="displayTotal" class="font-bold text-xl text-campre-green">0.00 mg</span>
+<span class="font-bold">TOTAL MATERIAL A MEZCLAR:</span>
+<span id="displayTotal" class="font-bold text-xl text-campre-green">0 g</span>
 </div>
 </div>
+</div>
+</div>
+
+<!-- FÓRMULA Y NOTAS TÉCNICAS -->
+<div class="mt-6 space-y-4">
+<div class="formula-box">
+<h3 class="font-bold text-campre-blue mb-2">Fórmula de Cálculo Técnico</h3>
+<p class="text-sm text-slate-700 mb-2"><strong>Paso 1 - Conversión a metros cuadrados:</strong></p>
+<p class="text-sm text-slate-700"><code>(cm / 100) × (cm / 100) = m²</code> o directamente <code>m × m = m²</code></p>
+<p class="text-sm text-slate-700 mb-2 mt-3"><strong>Paso 2 - Conversión a gramos (1 m² = 1 kg a 1mm de espesor):</strong></p>
+<p class="text-sm text-slate-700"><code>m² × 1000 × espesor(mm) × capas = gramos totales</code></p>
+<p class="text-sm text-slate-700 mb-2 mt-3"><strong>Paso 3 - Redondeo de seguridad (5% al alza):</strong></p>
+<p class="text-sm text-slate-700"><code>Math.ceil(gramos × 1.05) = gramos finales</code></p>
+<p class="text-sm text-slate-700 mb-2 mt-3"><strong>Paso 4 - Desglose proporción 2:1:</strong></p>
+<p class="text-sm text-slate-700"><code>Catalizador (B) = Total / 3</code> | <code>Resina (A) = Total - B</code> (o B × 2)</p>
+</div>
+
+<div class="warning-box">
+<h4 class="font-bold text-amber-900 mb-1">Precisión en el Peso</h4>
+<p class="text-sm text-amber-800">La mezcla debe realizarse por <strong>peso (gramos)</strong> utilizando una balanza digital, NO por volumen (mililitros), ya que la densidad del componente B suele ser distinta a la del A.</p>
+</div>
+
+<div class="warning-box">
+<h4 class="font-bold text-amber-900 mb-1">Procedimiento de Homogeneización</h4>
+<ol class="text-sm text-amber-800 list-decimal ml-4 space-y-1">
+<li>Verter el componente A en un recipiente limpio.</li>
+<li>Añadir el componente B siguiendo estrictamente la relación 2:1.</li>
+<li>Mezclar con espátula plana realizando movimientos envolventes (especialmente en el fondo y paredes del recipiente).</li>
+</ol>
+<p class="text-sm text-amber-800 mt-2"><strong>Evitar:</strong> Batidos de alta velocidad que introduzcan aire excesivo (microburbujas).</p>
+</div>
+
+<div class="critical-box">
+<h4 class="font-bold text-red-900 mb-1">Vida Útil de la Mezcla (Pot Life)</h4>
+<p class="text-sm text-red-800">Una vez unidos A y B, el tiempo de trabajo (gelación) es limitado: <strong>aprox. 30-40 min a 25°C</strong>. Preparar solo la cantidad que se pueda aplicar en ese rango de tiempo.</p>
+</div>
+
+<div class="critical-box">
+<h4 class="font-bold text-red-900 mb-1">Error Común - Advertencia Crítica</h4>
+<p class="text-sm text-red-800">Si la mezcla no es uniforme o la proporción es incorrecta, el piso presentará zonas pegajosas ("tacky") que no curarán tras 48 horas, lo cual requiere <strong>remoción mecánica total</strong>.</p>
 </div>
 </div>
 </div>
@@ -284,7 +332,6 @@ ENTREGAR PRESUPUESTO
 <h2 class="text-lg font-bold text-campre-blue">Catálogo de Productos CAMPRE</h2>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="catalogoCAMPRE">
-<!-- Se genera dinámicamente con JavaScript -->
 </div>
 
 <!-- TOTAL DEL CATÁLOGO -->
@@ -349,7 +396,7 @@ ENTREGAR PRESUPUESTO
 <div class="space-y-5 text-slate-700 text-sm">
 <section>
 <h3 class="font-bold text-campre-blue text-base">1. Cálculo Técnico</h3>
-<p>Selecciona la unidad de medida (cm o m). Ingresa las dimensiones y el sistema calculará automáticamente los materiales en miligramos/mililitros (para cm) o kilogramos/litros (para m), incluyendo siempre el 5% de margen de desperdicio técnico.</p>
+<p>Selecciona la unidad de medida (cm o m). Ingresa las dimensiones y el sistema calculará automáticamente los materiales en gramos, aplicando la fórmula: m² × 1000 × espesor × capas, con 5% de seguridad y redondeo al alza. El desglose sigue la proporción 2:1 (Resina:Catalizador).</p>
 </section>
 <section>
 <h3 class="font-bold text-campre-blue text-base">2. Presupuesto</h3>
@@ -364,7 +411,9 @@ ENTREGAR PRESUPUESTO
 <ul class="list-disc ml-4 space-y-1 mt-2">
 <li>Temperatura ideal de aplicación: 20-30°C</li>
 <li>Humedad ideal: 40-60%</li>
-<li>Proporción estándar Epoxi: 2:1 (Resina:Catalizador)</li>
+<li>Proporción estándar Epoxi: 2:1 (Resina:Catalizador) por PESO</li>
+<li>Usar balanza digital, no medir por volumen</li>
+<li>Pot Life: 30-40 min a 25°C</li>
 </ul>
 </section>
 </div>
@@ -699,50 +748,36 @@ function calcular() {
     const unidad = document.getElementById('unidadMedida').value;
     const largo = parseFloat(document.getElementById('largo').value) || 0;
     const ancho = parseFloat(document.getElementById('ancho').value) || 0;
-    const espesor = parseFloat(document.getElementById('espesor').value) || 1; // siempre en mm
+    const espesor = parseFloat(document.getElementById('espesor').value) || 1;
     const capas = parseInt(document.getElementById('capas').value) || 1;
     
+    // PASO 1: Conversión a metros cuadrados
     let areaM2 = 0;
     if (unidad === 'cm') {
-        areaM2 = (largo * ancho) / 10000;
+        areaM2 = (largo / 100) * (ancho / 100);
     } else {
         areaM2 = largo * ancho;
     }
     
-    const volumenL = areaM2 * (espesor / 1000);
+    // PASO 2: Conversión a gramos (1 m² = 1 kg a 1mm de espesor)
+    const gramosBase = areaM2 * 1000 * espesor * capas;
     
-    // EL 5% DE ESTIMACIÓN SE MANTIENE ESTRICTAMENTE EN AMBOS MODOS
-    const totalBaseKg = volumenL * 1.05 * capas;
+    // PASO 3: Redondeo de seguridad (5% al alza)
+    const gramosTotal = Math.ceil(gramosBase * 1.05);
     
-    let valVolText, valResText, valCatText, valTotText;
+    // PASO 4: Desglose proporción 2:1
+    const catalizadorB = Math.ceil(gramosTotal / 3);
+    const resinaA = gramosTotal - catalizadorB;
 
-    if (unidad === 'cm') {
-        const volumenML = volumenL * 1000;
-        const resinaMg = (totalBaseKg * (2/3)) * 1000000;
-        const catalizadorMg = (totalBaseKg * (1/3)) * 1000000;
-        const totalMg = totalBaseKg * 1000000;
-
-        valVolText = volumenML.toFixed(2) + ' mL';
-        valResText = resinaMg.toFixed(0) + ' mg';
-        valCatText = catalizadorMg.toFixed(0) + ' mg';
-        valTotText = totalMg.toFixed(0) + ' mg';
-    } else {
-        const resinaKg = totalBaseKg * (2/3);
-        const catalizadorKg = totalBaseKg * (1/3);
-
-        valVolText = volumenL.toFixed(2) + ' L';
-        valResText = resinaKg.toFixed(2) + ' kg';
-        valCatText = catalizadorKg.toFixed(2) + ' kg';
-        valTotText = totalBaseKg.toFixed(2) + ' kg';
-    }
-
-    document.getElementById('valArea').textContent = areaM2.toFixed(2) + ' m²';
-    document.getElementById('valVolumen').textContent = valVolText;
-    document.getElementById('labelComponente1').textContent = 'Resina Epoxi (A):';
-    document.getElementById('labelComponente2').textContent = 'Catalizador (B):';
-    document.getElementById('valResina').textContent = valResText;
-    document.getElementById('valCatalizador').textContent = valCatText;
-    document.getElementById('displayTotal').textContent = valTotText;
+    // Actualizar UI
+    document.getElementById('valArea').textContent = areaM2.toFixed(4) + ' m²';
+    document.getElementById('valBase').textContent = Math.round(gramosBase) + ' g';
+    document.getElementById('valTotal').textContent = gramosTotal + ' g';
+    document.getElementById('labelComponente1').textContent = 'Resina Epoxi (A) - 2/3:';
+    document.getElementById('labelComponente2').textContent = 'Catalizador (B) - 1/3:';
+    document.getElementById('valResina').textContent = resinaA + ' g';
+    document.getElementById('valCatalizador').textContent = catalizadorB + ' g';
+    document.getElementById('displayTotal').textContent = gramosTotal + ' g';
 
     // 2. Cálculo de Presupuesto (Solo pestaña presupuesto)
     if (currentTab === 'tabPresupuesto') {
@@ -751,7 +786,11 @@ function calcular() {
         const cC = parseFloat(document.getElementById('costoCatalizador').value) || 0;
         const cP = parseFloat(document.getElementById('costoPigmento').value) || 0;
         
-        subtotal += (totalBaseKg * (2/3) * cR) + (totalBaseKg * (1/3) * cC);
+        // Convertir gramos a kg para el cálculo de costos
+        const resinaKg = resinaA / 1000;
+        const catalizadorKg = catalizadorB / 1000;
+        
+        subtotal += (resinaKg * cR) + (catalizadorKg * cC);
 
         ['materials', 'services'].forEach(type => {
             document.getElementById(type + 'List').querySelectorAll('div').forEach(row => {
